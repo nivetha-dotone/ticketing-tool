@@ -532,7 +532,6 @@ public class AdminController {
             return new ResponseEntity<>( HttpStatus.NOT_IMPLEMENTED);
         }
     }
-
     @GetMapping("/clients/findbyClientcode/{clientcode}")
     public ResponseEntity<?> getClientById( @PathVariable String clientcode ) {
         try{
@@ -554,7 +553,6 @@ public class AdminController {
 
 
     }
-
     @GetMapping("/clients/allMaster")
     public ResponseEntity<?> getAllClients() {
         try{
@@ -572,7 +570,6 @@ public class AdminController {
         }
 
     }
-
     @PostMapping("/clients/addMaster")
     public ResponseEntity<?> createClient( @RequestBody mClientMaster client ) {
         try{
@@ -589,7 +586,6 @@ public class AdminController {
             throw new RuntimeException(e);
         }
     }
-
     @GetMapping("/clients/findbyClientName/{clientName}")
     public ResponseEntity<?> getClientByName( @PathVariable String clientName ) {
         try{
@@ -611,10 +607,6 @@ public class AdminController {
 
 
     }
-
-
-
-
     @GetMapping("/Employee/getAll")
     public ResponseEntity<?> getAllEmployees() {
         try {

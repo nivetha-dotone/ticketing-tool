@@ -251,7 +251,6 @@ public class ConsultantController {
         }
     }
 
-
     @PutMapping("/ChangeStatusByEmp/{tcktID}/{gmid}")
     public  ResponseEntity<?> UpdateStatusByMgr(@PathVariable Long tcktID,@PathVariable Integer gmid,HttpServletRequest request ){
         try{
@@ -330,7 +329,6 @@ public class ConsultantController {
             throw new RuntimeException("Client not found with name: " + mod_name);
         }
     }
-
 
     @GetMapping("/findEMPbyModuleforTKT/{mod_name}")
     public ResponseEntity<?> getempModbyfortkt(@PathVariable Long mod_name) {

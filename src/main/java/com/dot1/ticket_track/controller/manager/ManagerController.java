@@ -409,6 +409,22 @@ public class ManagerController {
         }
     }
 
+    @GetMapping("/getAllTicketByempID/{empId}")
+    public ResponseEntity<?> totalALLTicketMgr(@PathVariable Long empId, HttpServletRequest request) {
+        try {
+            List<mTicketSdeatils> gettotaled = ticketDservice.getAllTicketEmp(empId,request);
+            if (gettotaled != null) {
+                return new ResponseEntity<>(gettotaled, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            }
+        } catch (ExpiredJwtException e) {
+            return new ResponseEntity<>("Session expired. Please log in again.", HttpStatus.UNAUTHORIZED);
+
+        }
+    }
+
+
 
 
 
