@@ -651,7 +651,6 @@ public class AdminController {
             throw new RuntimeException(e);
         }
     }
-
     @GetMapping("/Employee/getByempCode/{empCode}")
     public ResponseEntity<?> getempCode(@PathVariable String empCode) {
         try {
@@ -678,9 +677,6 @@ public class AdminController {
             throw new RuntimeException(e);
         }
     }
-
-
-
     @PostMapping("/Role/addRole")
     public ResponseEntity<?>addRole(@RequestBody mRoleMaster roleMaster){
         try{
@@ -742,9 +738,6 @@ public class AdminController {
             throw new RuntimeException(e);
         }
     }
-
-
-
     @GetMapping("/ModulesMaster/findbyModuleId/{mod_name}")
     public ResponseEntity<?> getModbyName(@PathVariable Integer mod_name) {
         try{
