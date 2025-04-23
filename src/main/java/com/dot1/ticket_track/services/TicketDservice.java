@@ -62,8 +62,10 @@ public class TicketDservice {
                 mTicketSdeatils.setStatus(topassDefaultStatus);
 
                 mTicketSdeatils save = ticketDRepos.save(mTicketSdeatils);
-                if(mTicketSdeatils.getEmployeeId()==null){
-                    List<mEmployeeMaster> emplistByModName = moduleServices.getEmplistByModName(mTicketSdeatils.getModulesid().getModcode());
+                mTicketSdeatils getticketbyid = getticketbyid(save.getTicketid());
+
+                if(getticketbyid.getEmployeeId()==null){
+                    List<mEmployeeMaster> emplistByModName = moduleServices.getEmplistByModName(getticketbyid.getModulesid().getModcode());
                     if(emplistByModName!=null) {
                         List<String> toEmails = new ArrayList<>();
                         for (mEmployeeMaster emp : emplistByModName) {
@@ -71,16 +73,16 @@ public class TicketDservice {
                                 toEmails.add(emp.getEmailId());
                             }
                         }
-                    Map<String, Object> model = Map.of(
-                            "requestId", mTicketSdeatils.getTicketcode(),
-                            "requestCategory", mTicketSdeatils.getTicketlevel().getGmDescription(),
 
-                            "shortDescription", mTicketSdeatils.getTicketnote(),
-                            "Description-CmeID", mTicketSdeatils.getCmexpertId().getCmeId(),
-                            "Description-cmeEmail", mTicketSdeatils.getCmexpertId().getCmeemailId(),
-                            "Description-cmePhone", mTicketSdeatils.getCmexpertId().getCmephoneNo(),
-                            "Description-ClientName", mTicketSdeatils.getCmexpertId().getClientMasterIdCme().getClientName(),
-                            "Description-Desg", mTicketSdeatils.getCmexpertId().getCmeDesignation()
+                    Map<String, Object> model = Map.of(
+                            "requestId", getticketbyid.getTicketcode(),
+                            "requestCategory", getticketbyid.getTicketlevel().getGmDescription(),
+                            "shortDescription", getticketbyid.getTicketnote(),
+                            "DescriptionCmeID", getticketbyid.getCmexpertId().getCmeId(),
+                            "DescriptioncmeEmail", getticketbyid.getCmexpertId().getCmeemailId(),
+                            "DescriptioncmePhone", getticketbyid.getCmexpertId().getCmephoneNo(),
+                            "DescriptionClientName", getticketbyid.getClientid().getClientName(),
+                            "DescriptionDesg", getticketbyid.getCmexpertId().getCmeDesignation()
 
 
 
@@ -92,7 +94,7 @@ public class TicketDservice {
 
                 }
 
-                return save;
+                return getticketbyid;
 
             }else{
                 return null;
