@@ -6,8 +6,13 @@ import com.dot1.ticket_track.entity.*;
 import com.dot1.ticket_track.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +37,7 @@ public class TicketDservice {
     private ModuleServices moduleServices;
 
 
-    public mTicketSdeatils createMaster(mTicketSdeatils mTicketSdeatils) {
+    public mTicketSdeatils createMaster(mTicketSdeatils mTicketSdeatils, MultipartFile[] files) {
         try{
             if(mTicketSdeatils!=null) {
 
@@ -58,10 +63,41 @@ public class TicketDservice {
 //                ********************
 //                Search GmStatus ID Manual form DB and put it here
 //
+
+
                 topassDefaultStatus.setGmid(26);
                 mTicketSdeatils.setStatus(topassDefaultStatus);
 
+
+
+
+
                 mTicketSdeatils save = ticketDRepos.save(mTicketSdeatils);
+                if (files != null) {
+                    for (MultipartFile file : files) {
+
+                        Attachment attachment = new Attachment();
+                        String originalFilename = file.getOriginalFilename();
+                        String modifiedFileName = modifyFileName(originalFilename, save.getTicketcode());
+                        attachment.setId(attachmentMasteRepo.newIdAttached());
+                        attachment.setFileName(modifiedFileName);
+                        attachment.setFileType(file.getContentType());
+                        attachment.setTicketDt(save);
+
+                        try {
+                            // Save file on disk and get the path
+                            String filePath1 = saveModifiedFile(file,modifiedFileName);
+                            attachment.setFilePath(filePath1);
+                            attachmentMasteRepo.save(attachment);
+
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
+
+
                 mTicketSdeatils getticketbyid = getticketbyid(save.getTicketid());
 
                 if(getticketbyid.getEmployeeId()==null){
@@ -104,6 +140,47 @@ public class TicketDservice {
         }
     }
 
+    private String getFileNameWithoutExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) {
+            return fileName; // Return original if no extension
+        }
+        return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
+    public static String getSubstringBeforeSecondDash(String input) {
+        if (input == null || !input.contains("-")) {
+            return input; // Return original if no dashes found
+        }
+
+        int firstDashIndex = input.indexOf("-");
+        int secondDashIndex = input.indexOf("-", firstDashIndex + 1);
+
+        if (secondDashIndex != -1) {
+            return input.substring(0, secondDashIndex);
+        } else {
+            return input; // If less than 2 dashes, return full string
+        }
+    }
+
+    private String modifyFileName(String originalFileName, String prefix) {
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String fileNameWithoutExtension = getFileNameWithoutExtension(originalFileName);
+        String substringBeforeSecondDash = getSubstringBeforeSecondDash(prefix);
+        return "T_"+substringBeforeSecondDash+fileNameWithoutExtension+fileExtension;
+    }
+
+    private String saveModifiedFile(MultipartFile file, String modifiedFileName) throws IOException {
+        String directoryPath = "D:/DotOne Office Work/Project UKG WFM Java/Ticket_tracking/uploadfile/"; // Change the path as needed
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        File newFile = new File(directoryPath + modifiedFileName);
+        file.transferTo(newFile);
+        return newFile.getAbsolutePath();
+
+    }
 
     public List<mTicketSdeatils> getallTicket(HttpServletRequest request) {
         try{

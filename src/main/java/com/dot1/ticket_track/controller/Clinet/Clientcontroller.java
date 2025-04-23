@@ -54,30 +54,31 @@ public class Clientcontroller {
             objectMapper.registerModule(new JavaTimeModule());
             mTicketSdeatils ticket = objectMapper.readValue(tickets, mTicketSdeatils.class);
 
-            mTicketSdeatils master = ticketDservice.createMaster(ticket);
+            mTicketSdeatils master = ticketDservice.createMaster(ticket,files);
 
-            if (files != null) {
-                for (MultipartFile file : files) {
+//            if (files != null) {
+//                for (MultipartFile file : files) {
+//
+//                    Attachment attachment = new Attachment();
+//                    String originalFilename = file.getOriginalFilename();
+//                    String modifiedFileName = modifyFileName(originalFilename, master.getTicketcode());
+//                    attachment.setId(attachmentMasteRepo.newIdAttached());
+//                    attachment.setFileName(modifiedFileName);
+//                    attachment.setFileType(file.getContentType());
+//                    attachment.setTicketDt(master);
+//
+//                    try {
+//                        // Save file on disk and get the path
+//                        String filePath1 = saveModifiedFile(file,modifiedFileName);
+//                        attachment.setFilePath(filePath1);
+//                        attachmentMasteRepo.save(attachment);
+//
+//                    } catch (IOException e) {
+//                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//                    }
+//                }
+//            }
 
-                    Attachment attachment = new Attachment();
-                    String originalFilename = file.getOriginalFilename();
-                    String modifiedFileName = modifyFileName(originalFilename, master.getTicketcode());
-                    attachment.setId(attachmentMasteRepo.newIdAttached());
-                    attachment.setFileName(modifiedFileName);
-                    attachment.setFileType(file.getContentType());
-                    attachment.setTicketDt(master);
-
-                    try {
-                        // Save file on disk and get the path
-                        String filePath1 = saveModifiedFile(file,modifiedFileName);
-                        attachment.setFilePath(filePath1);
-                        attachmentMasteRepo.save(attachment);
-
-                    } catch (IOException e) {
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                    }
-                }
-            }
 
             if (master != null) {
                 return new ResponseEntity<>(master, HttpStatus.OK);

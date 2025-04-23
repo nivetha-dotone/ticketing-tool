@@ -1,6 +1,5 @@
 package com.dot1.ticket_track.controller.Admin;
 
-import com.dot1.ticket_track.dto.SignupRequest;
 import com.dot1.ticket_track.entity.*;
 import com.dot1.ticket_track.repository.AttachmentMasteRepo;
 import com.dot1.ticket_track.repository.NewtypesREpo;
@@ -18,7 +17,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,30 +81,30 @@ public class AdminController {
             objectMapper.registerModule(new JavaTimeModule());
             mTicketSdeatils ticket = objectMapper.readValue(tickets, mTicketSdeatils.class);
 
-            mTicketSdeatils master = ticketDservice.createMaster(ticket);
+            mTicketSdeatils master = ticketDservice.createMaster(ticket, files);
 
-            if (files != null) {
-                for (MultipartFile file : files) {
-
-                    Attachment attachment = new Attachment();
-                    String originalFilename = file.getOriginalFilename();
-                    String modifiedFileName = modifyFileName(originalFilename, master.getTicketcode());
-                    attachment.setId(attachmentMasteRepo.newIdAttached());
-                    attachment.setFileName(modifiedFileName);
-                    attachment.setFileType(file.getContentType());
-                    attachment.setTicketDt(master);
-
-                    try {
-                        // Save file on disk and get the path
-                        String filePath1 = saveModifiedFile(file,modifiedFileName);
-                        attachment.setFilePath(filePath1);
-                        attachmentMasteRepo.save(attachment);
-
-                    } catch (IOException e) {
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                    }
-                }
-            }
+//            if (files != null) {
+//                for (MultipartFile file : files) {
+//
+//                    Attachment attachment = new Attachment();
+//                    String originalFilename = file.getOriginalFilename();
+//                    String modifiedFileName = modifyFileName(originalFilename, master.getTicketcode());
+//                    attachment.setId(attachmentMasteRepo.newIdAttached());
+//                    attachment.setFileName(modifiedFileName);
+//                    attachment.setFileType(file.getContentType());
+//                    attachment.setTicketDt(master);
+//
+//                    try {
+//                        // Save file on disk and get the path
+//                        String filePath1 = saveModifiedFile(file,modifiedFileName);
+//                        attachment.setFilePath(filePath1);
+//                        attachmentMasteRepo.save(attachment);
+//
+//                    } catch (IOException e) {
+//                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//                    }
+//                }
+//            }
 
             if (master != null) {
                 return new ResponseEntity<>(master, HttpStatus.OK);
