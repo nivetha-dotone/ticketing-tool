@@ -1,6 +1,7 @@
 package com.dot1.ticket_track.services;
 
 
+import com.dot1.ticket_track.controller.mailTrail.Emailcontroller;
 import com.dot1.ticket_track.entity.*;
 import com.dot1.ticket_track.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -24,6 +26,11 @@ public class TicketDservice {
     private EmployeeService employeeService;
     @Autowired
     private GeneralMasterServices masterServicesGM;
+    @Autowired
+    private Emailcontroller emailcontroller;
+    @Autowired
+    private ModuleServices moduleServices;
+
 
     public mTicketSdeatils createMaster(mTicketSdeatils mTicketSdeatils) {
         try{
@@ -53,7 +60,38 @@ public class TicketDservice {
 //
                 topassDefaultStatus.setGmid(26);
                 mTicketSdeatils.setStatus(topassDefaultStatus);
+
                 mTicketSdeatils save = ticketDRepos.save(mTicketSdeatils);
+                if(mTicketSdeatils.getEmployeeId()==null){
+                    List<mEmployeeMaster> emplistByModName = moduleServices.getEmplistByModName(mTicketSdeatils.getModulesid().getModcode());
+                    if(emplistByModName!=null) {
+                        List<String> toEmails = new ArrayList<>();
+                        for (mEmployeeMaster emp : emplistByModName) {
+                            if (emp.getEmailId() != null) {
+                                toEmails.add(emp.getEmailId());
+                            }
+                        }
+                    Map<String, Object> model = Map.of(
+                            "requestId", mTicketSdeatils.getTicketcode(),
+                            "requestCategory", mTicketSdeatils.getTicketlevel().getGmDescription(),
+
+                            "shortDescription", mTicketSdeatils.getTicketnote(),
+                            "Description-CmeID", mTicketSdeatils.getCmexpertId().getCmeId(),
+                            "Description-cmeEmail", mTicketSdeatils.getCmexpertId().getCmeemailId(),
+                            "Description-cmePhone", mTicketSdeatils.getCmexpertId().getCmephoneNo(),
+                            "Description-ClientName", mTicketSdeatils.getCmexpertId().getClientMasterIdCme().getClientName(),
+                            "Description-Desg", mTicketSdeatils.getCmexpertId().getCmeDesignation()
+
+
+
+                    );
+
+                    emailcontroller.sendAssignmentEmail(toEmails,model);
+                    }
+
+
+                }
+
                 return save;
 
             }else{

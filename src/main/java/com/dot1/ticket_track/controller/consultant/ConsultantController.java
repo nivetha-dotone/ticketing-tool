@@ -19,6 +19,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.Path;
@@ -345,6 +347,7 @@ public class ConsultantController {
         }
     }
 
+
     @PutMapping("/AssignEmpByEmp/{tcktID}/{empID}")
     public  ResponseEntity<?> UpdateAssignEmpByMgr(@PathVariable Long tcktID,@PathVariable Integer empID,HttpServletRequest request ){
         try{
@@ -364,6 +367,28 @@ public class ConsultantController {
 
     }
 
+//**********************************************Mail Functions
 
+
+    private  final JavaMailSender mailSender;
+
+
+    @GetMapping("/send")
+    public String sendEmail() {
+        try{
+
+            SimpleMailMessage message=new SimpleMailMessage();
+            message.setFrom("mayurinvideo29@gmail.com");
+            message.setTo("mayurinvideo29@gmail.com");
+            message.setSubject("Test Email");
+            message.setText("This is a test email sent from Spring Boot application.");
+            mailSender.send(message);
+            return "Email sent successfully!";
+
+        } catch (Exception e) {
+
+            return e.getMessage();
+        }
+    }
 
 }

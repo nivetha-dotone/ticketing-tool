@@ -1,6 +1,7 @@
-package com.dot1.ticket_track.controller.mailTrail;
+package com.dot1.ticket_track.dto;
 
 import lombok.Data;
+
 
 @Data
 public class MailTrail {
@@ -8,8 +9,7 @@ public class MailTrail {
     private String body;
     private String from;
     private String to;
-    private String cc;
-    private String bcc;
+    private Long ticketidM;
     private String date;
 
 
