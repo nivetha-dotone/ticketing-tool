@@ -48,8 +48,6 @@ public class securityConfig {
                                .requestMatchers("/Manager/**").hasAnyAuthority("MANAGER")
                                .requestMatchers("/Employee/**").hasAnyAuthority("CONSULTANT")
                                .requestMatchers("/Client/**").hasAnyAuthority("CLIENT")
-
-
                                .anyRequest().permitAll()
                        )
                        .sessionManagement(manager-> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
