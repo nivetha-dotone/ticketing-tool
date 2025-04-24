@@ -64,8 +64,10 @@ public class TicketDservice {
 
                 mTicketSdeatils.setTicketcode(TiktCode);
                 mGeneralMaster topassDefaultStatus= new mGeneralMaster();
+
 //                ********************
 //                Search GmStatus ID Manual form DB and put it here
+
                 mGeneralMaster mGeneralMa = moduleRepo.findBygmDescription("NEW").orElse(null);
                 topassDefaultStatus.setGmid(mGeneralMa.getGmid());
                 mTicketSdeatils.setStatus(topassDefaultStatus);
@@ -90,7 +92,7 @@ public class TicketDservice {
                         }
                     }
                 }
-                mTicketSdeatils getticketbyid = getticketbyid(save.getTicketid());
+                 mTicketSdeatils getticketbyid = getticketbyid(save.getTicketid());
                 if(getticketbyid.getEmployeeId()==null){
                     List<mEmployeeMaster> emplistByModName = moduleServices.getEmplistByModName(getticketbyid.getModulesid().getModcode());
                     if(emplistByModName!=null) {
@@ -1053,10 +1055,15 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
             mEmployeeMaster employeeById = employeeService.getEmployeeById(empID);
             if(employeeById!=null) {
 //                mTicketSdeatils getticketbyid = getticketbyid(tcktID, request);
+
                 mTicketSdeatils getticketbyid = ticketDRepos.findById(tcktID).orElse(null);
+
+
                 if (getticketbyid != null) {
                     getticketbyid.setEmployeeId(employeeById);
                     mTicketSdeatils checkall = ticketDRepos.save(getticketbyid);
+
+
 
                     if (checkall != null) {
 
@@ -1200,8 +1207,29 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                         } else {
                             passtkt.setAttachments(null);
                         }
+
                         passtkt.setCreatedon(checkall.getCreatedon());
                         passtkt.setReportedon(checkall.getReportedon());
+                        if(passtkt.getEmployeeId()!=null){
+
+                        Map<String, Object> model = Map.of(
+
+                                "name", passtkt.getEmployeeId().getEmpName(),
+                                "requestId", passtkt.getTicketcode(),
+                                "requestCategory", passtkt.getTicketlevel().getGmDescription(),
+                                "requestStatus", passtkt.getStatus().getGmDescription(),
+                                "shortDescription", passtkt.getTicketnote(),
+                                "DescriptionCmeID", passtkt.getCmexpertId().getCmeId(),
+                                "DescriptioncmeEmail", passtkt.getCmexpertId().getCmeemailId(),
+                                "DescriptioncmePhone", passtkt.getCmexpertId().getCmephoneNo(),
+                                "DescriptionClientName", passtkt.getClientid().getClientName(),
+                                "DescriptionDesg", passtkt.getCmexpertId().getCmeDesignation()
+                        );
+
+
+                        String subject="Ticket is Assigned " + getticketbyid.getTicketcode() +" to you";
+                        emailcontroller.sendAssignmentEmailwithEmployee(getticketbyid.getEmployeeId().getEmailId(),model, subject);
+                        }
 
                         return passtkt;
 
@@ -1209,7 +1237,6 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                     } else {
                         throw new RuntimeException("not updated ticket");
                     }
-
 
                 } else {
                     throw new RuntimeException("not found ticket");
