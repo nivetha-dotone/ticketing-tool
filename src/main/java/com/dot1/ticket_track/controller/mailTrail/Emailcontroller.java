@@ -27,7 +27,7 @@ public class Emailcontroller {
         this.mailSender = mailSender;
     }
 
-    public void sendAssignmentEmail(List<String>  to, Map<String, Object> model) throws Exception {
+    public void sendAssignmentEmail(List<String>  to, Map<String, Object> model, String subject) throws Exception {
       try{
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -38,7 +38,7 @@ public class Emailcontroller {
         String htmlContent = templateEngine.process("email-templateGroupClient.html", context);
         helper.setFrom("mayurinvideo29@gmail.com");
         helper.setTo(to.toArray(new String[0]));
-        helper.setSubject("Assigned to your group");
+        helper.setSubject(subject);
         helper.setText(htmlContent, true);
 
         mailSender.send(message);

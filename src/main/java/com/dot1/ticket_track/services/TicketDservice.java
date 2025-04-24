@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -37,6 +38,7 @@ public class TicketDservice {
     private ModuleServices moduleServices;
 
 
+    @Transactional
     public mTicketSdeatils createMaster(mTicketSdeatils mTicketSdeatils, MultipartFile[] files) {
         try{
             if(mTicketSdeatils!=null) {
@@ -123,15 +125,11 @@ public class TicketDservice {
 
 
                     );
-
-                    emailcontroller.sendAssignmentEmail(toEmails,model);
+                    String subject="New Ticket Assigned " + getticketbyid.getTicketcode() +" to your group";
+                    emailcontroller.sendAssignmentEmail(toEmails,model, subject);
                     }
-
-
                 }
-
                 return getticketbyid;
-
             }else{
                 return null;
             }
