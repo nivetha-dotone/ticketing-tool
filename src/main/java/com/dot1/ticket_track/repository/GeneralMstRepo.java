@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface GeneralMstRepo extends JpaRepository<mGeneralMaster,Integer> {
     Optional<List<mGeneralMaster>> findBygmType(String gmType);
+    Optional<mGeneralMaster> findBygmDescription(String gmDescription);
+
 }

@@ -36,6 +36,8 @@ public class TicketDservice {
     private Emailcontroller emailcontroller;
     @Autowired
     private ModuleServices moduleServices;
+    @Autowired
+    private GeneralMstRepo moduleRepo;
 
 
     @Transactional
@@ -64,20 +66,14 @@ public class TicketDservice {
                 mGeneralMaster topassDefaultStatus= new mGeneralMaster();
 //                ********************
 //                Search GmStatus ID Manual form DB and put it here
-//
-
-
-                topassDefaultStatus.setGmid(26);
-                mTicketSdeatils.setStatus(topassDefaultStatus);
-
-
-
-
-
+                mGeneralMaster mGenerMaster = moduleRepo.findBygmDescription("NEW").orElse(null);
+                if(mGenerMaster!=null){
+                    topassDefaultStatus.setGmid(mGenerMaster.getGmid());
+                    mTicketSdeatils.setStatus(topassDefaultStatus);
+                }
                 mTicketSdeatils save = ticketDRepos.save(mTicketSdeatils);
                 if (files != null) {
                     for (MultipartFile file : files) {
-
                         Attachment attachment = new Attachment();
                         String originalFilename = file.getOriginalFilename();
                         String modifiedFileName = modifyFileName(originalFilename, save.getTicketcode());
@@ -85,23 +81,17 @@ public class TicketDservice {
                         attachment.setFileName(modifiedFileName);
                         attachment.setFileType(file.getContentType());
                         attachment.setTicketDt(save);
-
                         try {
                             // Save file on disk and get the path
                             String filePath1 = saveModifiedFile(file,modifiedFileName);
                             attachment.setFilePath(filePath1);
                             attachmentMasteRepo.save(attachment);
-
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     }
                 }
-
-
-
                 mTicketSdeatils getticketbyid = getticketbyid(save.getTicketid());
-
                 if(getticketbyid.getEmployeeId()==null){
                     List<mEmployeeMaster> emplistByModName = moduleServices.getEmplistByModName(getticketbyid.getModulesid().getModcode());
                     if(emplistByModName!=null) {
@@ -111,7 +101,6 @@ public class TicketDservice {
                                 toEmails.add(emp.getEmailId());
                             }
                         }
-
                     Map<String, Object> model = Map.of(
                             "requestId", getticketbyid.getTicketcode(),
                             "requestCategory", getticketbyid.getTicketlevel().getGmDescription(),
@@ -121,13 +110,28 @@ public class TicketDservice {
                             "DescriptioncmePhone", getticketbyid.getCmexpertId().getCmephoneNo(),
                             "DescriptionClientName", getticketbyid.getClientid().getClientName(),
                             "DescriptionDesg", getticketbyid.getCmexpertId().getCmeDesignation()
-
-
-
                     );
                     String subject="New Ticket Assigned " + getticketbyid.getTicketcode() +" to your group";
-                    emailcontroller.sendAssignmentEmail(toEmails,model, subject);
+                    emailcontroller.sendAssignmentEmailGroup(toEmails,model, subject);
                     }
+                }else if(getticketbyid.getEmployeeId()!=null){
+
+                    Map<String, Object> model = Map.of(
+
+                            "name", getticketbyid.getEmployeeId().getEmpName(),
+                            "requestId", getticketbyid.getTicketcode(),
+                            "requestCategory", getticketbyid.getTicketlevel().getGmDescription(),
+                            "shortDescription", getticketbyid.getTicketnote(),
+                            "DescriptionCmeID", getticketbyid.getCmexpertId().getCmeId(),
+                            "DescriptioncmeEmail", getticketbyid.getCmexpertId().getCmeemailId(),
+                            "DescriptioncmePhone", getticketbyid.getCmexpertId().getCmephoneNo(),
+                            "DescriptionClientName", getticketbyid.getClientid().getClientName(),
+                            "DescriptionDesg", getticketbyid.getCmexpertId().getCmeDesignation()
+                    );
+
+
+                    String subject="Ticket is Assigned " + getticketbyid.getTicketcode() +" to you";
+                    emailcontroller.sendAssignmentEmailwithEmployee(getticketbyid.getEmployeeId().getEmailId(),model, subject);
                 }
                 return getticketbyid;
             }else{
