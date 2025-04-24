@@ -66,9 +66,9 @@ public class TicketDservice {
                 mGeneralMaster topassDefaultStatus= new mGeneralMaster();
 //                ********************
 //                Search GmStatus ID Manual form DB and put it here
-
-                    topassDefaultStatus.setGmid(26);
-                    mTicketSdeatils.setStatus(topassDefaultStatus);
+                mGeneralMaster mGeneralMa = moduleRepo.findBygmDescription("NEW").orElse(null);
+                topassDefaultStatus.setGmid(mGeneralMa.getGmid());
+                mTicketSdeatils.setStatus(topassDefaultStatus);
 
                 mTicketSdeatils save = ticketDRepos.save(mTicketSdeatils);
                 if (files != null) {
@@ -114,25 +114,25 @@ public class TicketDservice {
                     emailcontroller.sendAssignmentEmailGroup(toEmails,model, subject);
                     }
                 }
-//                else if(getticketbyid.getEmployeeId()!=null){
-//
-//                    Map<String, Object> model = Map.of(
-//
-//                            "name", getticketbyid.getEmployeeId().getEmpName(),
-//                            "requestId", getticketbyid.getTicketcode(),
-//                            "requestCategory", getticketbyid.getTicketlevel().getGmDescription(),
-//                            "shortDescription", getticketbyid.getTicketnote(),
-//                            "DescriptionCmeID", getticketbyid.getCmexpertId().getCmeId(),
-//                            "DescriptioncmeEmail", getticketbyid.getCmexpertId().getCmeemailId(),
-//                            "DescriptioncmePhone", getticketbyid.getCmexpertId().getCmephoneNo(),
-//                            "DescriptionClientName", getticketbyid.getClientid().getClientName(),
-//                            "DescriptionDesg", getticketbyid.getCmexpertId().getCmeDesignation()
-//                    );
-//
-//
-//                    String subject="Ticket is Assigned " + getticketbyid.getTicketcode() +" to you";
-//                    emailcontroller.sendAssignmentEmailwithEmployee(getticketbyid.getEmployeeId().getEmailId(),model, subject);
-//                }
+                else if(getticketbyid.getEmployeeId()!=null){
+
+                    Map<String, Object> model = Map.of(
+
+                            "name", getticketbyid.getEmployeeId().getEmpName(),
+                            "requestId", getticketbyid.getTicketcode(),
+                            "requestCategory", getticketbyid.getTicketlevel().getGmDescription(),
+                            "shortDescription", getticketbyid.getTicketnote(),
+                            "DescriptionCmeID", getticketbyid.getCmexpertId().getCmeId(),
+                            "DescriptioncmeEmail", getticketbyid.getCmexpertId().getCmeemailId(),
+                            "DescriptioncmePhone", getticketbyid.getCmexpertId().getCmephoneNo(),
+                            "DescriptionClientName", getticketbyid.getClientid().getClientName(),
+                            "DescriptionDesg", getticketbyid.getCmexpertId().getCmeDesignation()
+                    );
+
+
+                    String subject="Ticket is Assigned " + getticketbyid.getTicketcode() +" to you";
+                    emailcontroller.sendAssignmentEmailwithEmployee(getticketbyid.getEmployeeId().getEmailId(),model, subject);
+                }
                 return getticketbyid;
             }else{
                 return null;
