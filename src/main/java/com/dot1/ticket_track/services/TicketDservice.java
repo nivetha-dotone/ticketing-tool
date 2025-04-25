@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 @Service
@@ -38,6 +39,9 @@ public class TicketDservice {
     private ModuleServices moduleServices;
     @Autowired
     private GeneralMstRepo moduleRepo;
+    @Autowired
+    private AttachmentMasteRepo attachmentMasteRepo;
+
 
 
 
@@ -1412,6 +1416,23 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                         passtkt.setCreatedon(checkall.getCreatedon());
                         passtkt.setReportedon(checkall.getReportedon());
 
+                        if(Objects.equals(passtkt.getStatus().getGmDescription(), "RESOLVED")){
+
+                            Map<String, Object> model = Map.of(
+                                    "name", passtkt.getCmexpertId().getCmeName(),
+                                    "requestId", passtkt.getTicketcode(),
+                                    "requestCategory", passtkt.getTicketlevel().getGmDescription(),
+                                    "requestStatus", passtkt.getStatus().getGmDescription(),
+                                    "shortDescription", passtkt.getTicketnote(),
+                                    "DescriptionEmpCode", passtkt.getEmployeeId().getEmpCode(),
+                                    "DescriptionEmpName", passtkt.getEmployeeId().getEmpName(),
+                                    "DescriptionEmpEmail", passtkt.getEmployeeId().getEmailId(),
+                                    "DescriptionEmpPhone", passtkt.getEmployeeId().getPhoneNo(),
+                                    "DescriptionBSName", passtkt.getCompanyname()
+                            );
+                            String subject="Ticket is Resolved " + passtkt.getTicketcode();
+                            emailcontroller.sendChangedEmailwithClientCme(passtkt.getCmexpertId().getCmeemailId(),model, subject);
+                        }
                         return passtkt;
 
 
@@ -2034,10 +2055,8 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                             for(mClientSPOCMaster checkclientspoc:mClientSPOCMasters) {
                                 checkclientspoc.setClientmasterId(null);
                                 newpassspocclient.add(checkclientspoc);
-
                             }
                             passClient.setMClientSPOCMasters(newpassspocclient);
-
                         }else{
                             passClient.setMClientSPOCMasters(null);
                         }
@@ -2132,8 +2151,6 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                         }
                         passtkt.setAttachments(passattach);
                     }
-
-
                     passtkt.setCreatedon(checkall.getCreatedon());
                     passtkt.setReportedon(checkall.getReportedon());
                     pass.add(passtkt);
@@ -3052,9 +3069,6 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
     }
 
 //Client
-@Autowired
-private AttachmentMasteRepo attachmentMasteRepo;
-
 
 //    public void addAttachmentByClientOnhold()
 
