@@ -1433,6 +1433,24 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                             String subject="Ticket is Resolved " + passtkt.getTicketcode();
                             emailcontroller.sendChangedEmailwithClientCme(passtkt.getCmexpertId().getCmeemailId(),model, subject);
                         }
+                        if(Objects.equals(passtkt.getStatus().getGmDescription(), "CLOSED")){
+
+                            Map<String, Object> model = Map.of(
+                                    "name", passtkt.getEmployeeId().getEmpName(),
+                                    "requestId", passtkt.getTicketcode(),
+                                    "requestStatus", passtkt.getStatus().getGmDescription(),
+                                    "shortDescription", passtkt.getTicketnote(),
+                                    "DescriptionCmeID", passtkt.getCmexpertId().getCmeId(),
+                                    "DescriptionCmeName", passtkt.getCmexpertId().getCmeName(),
+                                    "DescriptioncmeEmail", passtkt.getCmexpertId().getCmeemailId(),
+                                    "DescriptioncmePhone", passtkt.getCmexpertId().getCmephoneNo(),
+                                    "DescriptionClientName", passtkt.getClientid().getClientName(),
+                                    "DescriptionDesg", passtkt.getCmexpertId().getCmeDesignation()
+                            );
+
+                            String subject="Ticket " + passtkt.getTicketcode() +" is closed";
+                            emailcontroller.sendClosedEmailWithEmployee(passtkt.getEmployeeId().getEmailId(),model, subject);
+                        }
                         return passtkt;
 
 
