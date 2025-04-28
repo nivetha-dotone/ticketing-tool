@@ -90,6 +90,26 @@ public class Emailcontroller {
       }
 
     }
+    public void sendONHOLDEmailwithClientCme(String  to, Map<String, Object> model, String subject) throws Exception {
+      try{
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        Context context = new Context();
+        context.setVariables(model);
+
+        String htmlContent = templateEngine.process("email-templateONHOLDTikcet.html", context);
+        helper.setFrom("mayurinvideo29@gmail.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+        mailSender.send(message);
+
+      } catch (Exception e) {
+          throw new RuntimeException(e);
+      }
+
+    }
     public void sendClosedEmailWithEmployee(String  to, Map<String, Object> model, String subject) throws Exception {
       try{
         MimeMessage message = mailSender.createMimeMessage();

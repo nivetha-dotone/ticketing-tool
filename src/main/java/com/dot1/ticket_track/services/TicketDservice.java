@@ -1433,6 +1433,23 @@ public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest requ
                             String subject="Ticket is Resolved " + passtkt.getTicketcode();
                             emailcontroller.sendChangedEmailwithClientCme(passtkt.getCmexpertId().getCmeemailId(),model, subject);
                         }
+                        if(Objects.equals(passtkt.getStatus().getGmDescription(), "ON-HOLD")){
+
+                            Map<String, Object> model = Map.of(
+                                    "name", passtkt.getCmexpertId().getCmeName(),
+                                    "requestId", passtkt.getTicketcode(),
+                                    "requestCategory", passtkt.getTicketlevel().getGmDescription(),
+                                    "requestStatus", passtkt.getStatus().getGmDescription(),
+                                    "shortDescription", passtkt.getTicketnote(),
+                                    "DescriptionEmpCode", passtkt.getEmployeeId().getEmpCode(),
+                                    "DescriptionEmpName", passtkt.getEmployeeId().getEmpName(),
+                                    "DescriptionEmpEmail", passtkt.getEmployeeId().getEmailId(),
+                                    "DescriptionEmpPhone", passtkt.getEmployeeId().getPhoneNo(),
+                                    "DescriptionBSName", passtkt.getCompanyname()
+                            );
+                            String subject="Ticket is ON HOLD " + passtkt.getTicketcode();
+                            emailcontroller.sendONHOLDEmailwithClientCme(passtkt.getCmexpertId().getCmeemailId(),model, subject);
+                        }
                         if(Objects.equals(passtkt.getStatus().getGmDescription(), "CLOSED")){
 
                             Map<String, Object> model = Map.of(
