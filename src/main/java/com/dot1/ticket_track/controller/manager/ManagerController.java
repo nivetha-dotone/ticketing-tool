@@ -48,6 +48,7 @@ public class ManagerController {
     @Autowired
     private UatTranscationService uatTrservice;
 
+
     @PostMapping(value = "/CreationTktwithD", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> CreateMasterwithAttachment( @RequestPart("tickets") String  tickets,
                                                          @RequestPart(value = "files", required = false) MultipartFile[] files) {
@@ -299,7 +300,6 @@ public class ManagerController {
     @PutMapping("/AssignEmpByMgr/{tcktID}/{empID}")
     public  ResponseEntity<?> UpdateAssignEmpByMgr(@PathVariable Long tcktID,@PathVariable Integer empID,HttpServletRequest request ){
         try{
-
             mTicketSdeatils mTicketSdeatils = ticketDservice.assignEmpByMGR(tcktID, empID, request);
             if(mTicketSdeatils!=null){
                 return new ResponseEntity<>(mTicketSdeatils,HttpStatus.OK);
@@ -309,10 +309,6 @@ public class ManagerController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
-
-
     }
 
     @PutMapping("/ChangeStatusByMgr/{tcktID}/{gmid}")

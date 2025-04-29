@@ -57,6 +57,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getNotAssignTicketeEMP/{compName}")
     public ResponseEntity<?> totalNotAssignTicketByCompanyName(@PathVariable String compName, HttpServletRequest request) {
         try {
@@ -71,6 +72,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getAssignTicketeEMP/{compName}")
     public ResponseEntity<?> totalAssignTicketByCompany(@PathVariable String compName, HttpServletRequest request) {
         try {
@@ -85,6 +87,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getAllByModule/{modId}")
     public ResponseEntity<?> AllTicketByModule(@PathVariable Long modId, HttpServletRequest request) {
         try {
@@ -99,6 +102,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getASsignByModule/{modId}")
     public ResponseEntity<?> AssignTicketByModule(@PathVariable Long modId, HttpServletRequest request) {
         try {
@@ -113,6 +117,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getNotASsignByModule/{modId}")
     public ResponseEntity<?> NotAssignTicketByModule(@PathVariable Long modId, HttpServletRequest request) {
         try {
@@ -127,6 +132,7 @@ public class ConsultantController {
 
         }
     }
+
     @GetMapping("/getAllTicketByempID/{empId}")
     public ResponseEntity<?> totalALLTicketMgr(@PathVariable Long empId, HttpServletRequest request) {
         try {
