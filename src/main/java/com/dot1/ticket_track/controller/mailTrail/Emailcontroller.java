@@ -48,7 +48,6 @@ public class Emailcontroller {
 
     }
 
-
     public void sendAssignmentEmailwithEmployee(String  to, Map<String, Object> model, String subject) throws Exception {
       try{
         MimeMessage message = mailSender.createMimeMessage();
@@ -90,6 +89,7 @@ public class Emailcontroller {
       }
 
     }
+
     public void sendONHOLDEmailwithClientCme(String  to, Map<String, Object> model, String subject) throws Exception {
       try{
         MimeMessage message = mailSender.createMimeMessage();
@@ -110,6 +110,7 @@ public class Emailcontroller {
       }
 
     }
+
     public void sendClosedEmailWithEmployee(String  to, Map<String, Object> model, String subject) throws Exception {
       try{
         MimeMessage message = mailSender.createMimeMessage();
@@ -149,5 +150,4 @@ public class Emailcontroller {
 //           return ResponseEntity.ok("Authentication failed");
 //       }
 //       }
-
 }

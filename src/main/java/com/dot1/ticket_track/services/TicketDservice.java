@@ -58,7 +58,7 @@ public class TicketDservice {
                 if(gmDescription.equals("SERVICE REQUEST")){
                      TiktCode ="SR-"+prefix;
                 } else if (gmDescription.equals("INCIDENT REQUEST")) {
-                    TiktCode="IR-"+prefix;
+                    TiktCode="INC-"+prefix;
                 } else if (gmDescription.equals("CHANGE REQUEST")) {
                     TiktCode="CR-"+prefix;
                 }else{
@@ -535,7 +535,7 @@ public class TicketDservice {
 
 
 
-public Integer gettotalTicketByCmeID(Long cmeID){
+    public Integer gettotalTicketByCmeID(Long cmeID){
         try{
 
             Integer byCmexpertId = ticketDRepos.findBycmexpertId(cmeID);
@@ -547,7 +547,7 @@ public Integer gettotalTicketByCmeID(Long cmeID){
 }
 
 
-public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest request){
+    public List<mTicketSdeatils> getTicketofCmeID(Long cmeID,HttpServletRequest request){
         try{
 
 
