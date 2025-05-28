@@ -40,7 +40,7 @@ public class AdminController {
     @Autowired
     private TicketDservice ticketDservice;
     @Autowired
-    private final AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
     @Autowired
     private EmployeeService employeeService;
     @Autowired
@@ -364,20 +364,6 @@ public class AdminController {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @PostMapping("/clientCME/addMaster")
     public ResponseEntity<?> addMastre(@RequestBody mClientCMEMaster cmeMaster){
         try {
@@ -396,7 +382,6 @@ public class AdminController {
 
 
     }
-
 
     @GetMapping("/clientCME/allMaster")
     public ResponseEntity<?> getAllClientsof() {
@@ -488,6 +473,7 @@ public class AdminController {
             throw new RuntimeException("CME not found with this ClientID: " + cmeId);
         }
     }
+
     @GetMapping("/clientCME/findbyModIdPresentcme/{modId}")
     public ResponseEntity<?> getmodIdbyCME(@PathVariable Integer modId) {
         try{
@@ -509,12 +495,6 @@ public class AdminController {
 
     }
 
-
-
-
-
-
-
     @PostMapping("/Clspoc/addMaster")
     public ResponseEntity<?> addGeneral(@RequestBody mClientSPOCMaster spocmst){
         try{
@@ -530,6 +510,7 @@ public class AdminController {
             return new ResponseEntity<>( HttpStatus.NOT_IMPLEMENTED);
         }
     }
+
     @GetMapping("/clients/findbyClientcode/{clientcode}")
     public ResponseEntity<?> getClientById( @PathVariable String clientcode ) {
         try{
@@ -619,8 +600,9 @@ public class AdminController {
             throw new RuntimeException(e);
         }
     }
-    @PostMapping("/Employee/addEmployee")
+
     @Transactional
+    @PostMapping("/Employee/addEmployee")
     public ResponseEntity<?> addEmployee(@RequestBody mEmployeeMaster employee) {
         try {
             mEmployeeMaster adduserlogin = employeeService.addEmployee(employee);
@@ -963,7 +945,83 @@ public class AdminController {
 
 //    @GetMapping("/")
 
+    @PutMapping("/updatePassword/{username}/{pass}")
+    public ResponseEntity<?> updatePass(@PathVariable String username, @PathVariable String pass){
+        try{
 
+            mUserLogin_demo mUserLoginDemo = employeeService.updatePass(username, pass);
+            if(mUserLoginDemo!=null){
+                return new ResponseEntity<>(mUserLoginDemo,HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+            }
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PutMapping("/updatePassOnRequest/{username}/{pass}")
+    public ResponseEntity<?> updatePasswordBy(@PathVariable String username, @PathVariable String pass){
+        try{
+
+            mUserLogin_demo mUserLoginDemo = employeeService.updatePassbyAdmin(username, pass);
+            if(mUserLoginDemo!=null){
+
+                return new ResponseEntity<>(mUserLoginDemo,HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+            }
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/getUserByEmail/{username}")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String username){
+        try{
+            mUserLogin_demo userloginpresent = employeeService.getUserloginpresent(username);
+            if(userloginpresent!=null){
+                return  new ResponseEntity<>(userloginpresent,HttpStatus.OK);
+            }else{
+                return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/getUserByEmpCode/{empCode}")
+    public ResponseEntity<?> getUserByEmpcode(@PathVariable String empCode){
+        try{
+            mUserLogin_demo userloginpresent = employeeService.getEmpcodePresent(empCode);
+            if(userloginpresent!=null){
+                return  new ResponseEntity<>(userloginpresent,HttpStatus.OK);
+            }else{
+                return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/getUserByClientCode/{clientCode}")
+    public ResponseEntity<?> getUserByClientCode(@PathVariable Integer clientCode){
+        try{
+            mUserLogin_demo userloginpresent = employeeService.getClientcodePresent(clientCode);
+            if(userloginpresent!=null){
+                return  new ResponseEntity<>(userloginpresent,HttpStatus.OK);
+            }else{
+                return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }

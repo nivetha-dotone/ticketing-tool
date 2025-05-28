@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface TicketDRepos extends JpaRepository<mTicketSdeatils,Long> {
 
-    @Query(value = "SELECT TOP(1) SUBSTRING(CONVERT(VARCHAR(36), NEWID()), 1, 15) AS UniqueCode FROM m_module_master",nativeQuery = true)
+    @Query(value = "SELECT TOP(1) SUBSTRING(CONVERT(VARCHAR(36), NEWID()), 1, 12) AS UniqueCode FROM m_module_master",nativeQuery = true)
     String newIDTicketcode();
 
     @Query(value = "SELECT NEXT VALUE FOR UniqueSecTicket AS UniqueNumber",nativeQuery = true)

@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Master</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .profile-details {
+            text-align: right;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            margin-right: 1%;
+            margin-left: 223px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 5.5%;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+
+        /* Sidebar Styles */
+
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content Styles */
+
+
+        .main-content.collapsed {
+            margin-left: 6%;
+            margin-right: 6%;
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex: 1;
+        }
+
+        .tab.active {
+            background-color: #003366;
+            color: white;
+        }
+
+        /* Content Styles */
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            padding-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group select {
+            width: 100%;
+            padding: 8px 93px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #003366;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #002244;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Entry List Styles */
+        .entry-list {
+            margin-top: 20px;
+        }
+
+        .entry-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        /* Toast Notification */
+
+
+        .toast.success {
+            background-color: #28a745;
+        }
+
+        .toast.error {
+            background-color: #dc3545;
+        }
+        .toast.warning{
+            background-color: #fa6c19;
+
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Search Box Styles */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box1{
+            display: flex;
+
+        }
+        .search-box1 input{
+
+        }
+        .btn1{
+            padding: 10px 20px;
+            height: 34px;
+            margin: 23px;
+
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #003366;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="adminDashboard">Dashboard</a></li>
+            <li class="active"><a href="adminmaster">Masters</a></li>
+            <li><a href="adminticketCr">Create Ticket</a></li>
+            <li><a href="admintAlltickets">Tickets</a></li>
+            <li><a href="admintReports">Reports</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <h2>General Master</h2>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('view')">View Master</button>
+            <button class="tab" onclick="showTab('add')">Add Master</button>
+            <!-- <button class="tab" onclick="showTab('delete')">Delete by ID</button> -->
+        </div>
+
+        <div id="view" class="tab-content active">
+            <button class="btn" onclick="fetchAllEntries()">View All Entries</button>
+            <button class="btn" onclick="showTab('find')">Find by Type</button>
+
+            <div class="table-container">
+                <table id="viewEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Active</th>
+                            <th>Insert Time</th>
+                            <!-- <th>Update Time</th> -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="find" class="tab-content">
+            <div class="search-box1">
+                <div class="form-group">
+                    <label for="gmTypedrop" class="required">Select Type</label>
+                    <select id="gmTypedrop" required>
+                        <option value="">Select Type (Eg: TT)</option>
+                    </select>
+                </div>
+                <button class="btn1" onclick="findById()">Find</button>
+            </div>
+            <div class="table-container">
+                <table id="viewEntryByName">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Active</th>
+                            <th>Insert Time</th>
+                            <!-- <th>Update Time</th> -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="add" class="tab-content">
+            <form id="addForm" onsubmit="addEntry(event)">
+
+                <div class="form-group">
+                    <label for="gmType" class="required">Select Type</label>
+                    <select id="gmType" required>
+                        <option value="">Select Type (Eg: TT)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="gmDescription" placeholder="Description" required oninput="validateUppercaseInput(this)">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isActive" checked>
+                        Is Active
+                    </label>
+                </div>
+                <button type="submit" class="btn">Add Entry</button>
+            </form>
+        </div>
+
+        <div id="delete" class="tab-content">
+            <div class="search-box">
+                <input type="number" id="deleteSearchId" placeholder="Enter ID to delete">
+                <button class="btn btn-danger" onclick="deleteById()">Delete by Id</button>
+            </div>
+            <button class="btn" onclick="fetchAllEntries('deleteEntryTable')">View All Entries</button>
+            <div class="table-container">
+                <table id="deleteEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Active</th>
+                            <th>Insert Time</th>
+                            <!-- <th>Update Time</th> -->
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+<!-- Session Expiry Modal -->
+<div id="sessionModal" class="modal">
+    <div class="modal-content">
+        <h3>Session Expired</h3>
+        <p>Your session has expired. Please login again to continue.</p>
+        <div class="modal-buttons">
+            <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+        </div>
+    </div>
+</div>
+    <footer>
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+        });
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true; // If there's no expiry time stored, assume expired
+            }
+        
+            const expiryTime = Number(tokenExpiry); // Convert to number safely
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true; // Treat invalid values as expired
+            }
+        
+            console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+        
+            return Date.now() > expiryTime;
+        }
+        
+        
+        // Function to check token expiration
+        function checkTokenExpiration() {
+            if (isTokenExpired()) {
+                showSessionExpiredModal();
+            }
+        }
+    
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+    
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.style.display = 'block';
+            
+            // Prevent closing the modal by clicking outside
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    // Do nothing - force user to click the login button
+                }
+            };
+        }
+        
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = 'Logout';
+        }
+        
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+        
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const employeeDataStr = localStorage.getItem('employeeData');
+                if (!employeeDataStr) {
+                    return;
+                }
+                
+                const employeeData = JSON.parse(employeeDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of employee name for avatar
+                const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${employeeData.empName || 'User'}</p>
+                        <p class="admin-id">Admin ID: ${employeeData.empCode || 'N/A'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+    
+        
+        // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('employeeData');
+            
+            // Redirect to login page
+            window.location.href = 'Logout';
+        }
+    
+    
+          // Function to save authentication token with expiry
+          function saveAuthToken(token, expiresIn) {
+            const expiryTime = expiresIn * 10000000;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('tokenExpiry', expiryTime);
+            console.log("Token Expiry Set:", expiryTime);
+        }
+        //DropDown
+        async function fetchCompanies() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch("http://103.115.194.81:8080/ticket/Admin/General/getAllTypes", {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                // Check response status
+                if (response.status === 200) {
+
+                const companies = await response.json();
+                
+                const addSelect = document.getElementById('gmType');
+                const findSelect = document.getElementById('gmTypedrop');
+
+                const updateSelect = document.getElementById('updateCompanyId');
+                
+                const options = companies.map(gmType => 
+                    `<option value="${gmType.gmType}">${gmType.gmtypedropdoen}</option>`
+                ).join('');
+                
+                addSelect.innerHTML = '<option value="">Select Type</option>' + options;
+                findSelect.innerHTML = '<option value="">Select Type</option>' + options;
+                //updateSelect.innerHTML = '<option value="">Select Type</option>' + options;
+            }else{
+              // Handle authentication errors
+              if (response.status === 401 || response.status === 403 || response.status === 500) {
+                // Token might be expired or invalid
+                checkTokenExpiration();
+                showSessionExpiredModal();
+           
+
+            }
+        
+
+            throw new Error(`Failed to fetch total tickets: ${response.status}`);
+
+            
+            
+            }
+            } catch (error) {
+                showToast('Failed to fetch companies', 'error');
+            }
+        }
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+
+        // Show Toast Notification
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Render Entry
+        function renderEntry(entry, tableId, includeDelete = false) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.gmid}</td>
+                <td>${entry.gmType}</td>
+                <td>${entry.gmDescription}</td>
+                <td>${entry.isActive ? 'Yes' : 'No'}</td>
+                <td>${entry.insertDtm}</td>
+                <!-- <td>${entry.updateDtm}</td> -->
+                ${includeDelete ? `<td><button class="btn btn-danger" onclick="deleteEntry(${entry.gmid})">Delete</button></td>` : ''}
+            `;
+            tbody.appendChild(row);
+        }
+
+        // Fetch All Entries
+        async function fetchAllEntries(tableId = 'viewEntryTable') {
+            try {
+
+
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch("http://103.115.194.81:8080/ticket/General/getAllMaster", {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                // Check response status
+                if (response.status === 200) {
+
+
+                const data = await response.json();
+                
+                const tbody = document.querySelector(`#${tableId} tbody`);
+                tbody.innerHTML = '';
+                
+                data.forEach(entry => {
+                    renderEntry(entry, tableId, tableId === 'deleteEntryTable');
+                });
+                
+                showToast('Entries fetched successfully', 'success');
+            }else{
+            // Handle authentication errors
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                // Token might be expired or invalid
+                checkTokenExpiration();
+                showSessionExpiredModal();
+           
+
+            }
+        
+
+            throw new Error(`Failed to fetch total tickets: ${response.status}`);
+
+           
+            }
+            } catch (error) {
+                showToast('Failed to fetch entries', 'error');
+            }
+        }
+
+        // Find Entry by ID
+        async function findById(tableId = 'viewEntryByName') {
+            const searchId = document.getElementById('gmTypedrop').value;
+            
+            if (!searchId) return;
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Admin/General/findbyname/${searchId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                // Check response status
+                if (response.status === 200) {
+                const data = await response.json();
+                
+                const tbody = document.querySelector(`#${tableId} tbody`);
+                tbody.innerHTML = '';
+                
+                data.forEach(entry => {
+                    renderEntry(entry, tableId, tableId === 'deleteEntryTable');
+                });
+                //renderEntry(data, 'findEntryTable');
+                showToast('Entry found successfully', 'success');
+            }else{
+                if (response.status === 401 || response.status === 403 || response.status === 500) {
+                    // Token might be expired or invalid
+                    checkTokenExpiration();
+                    showSessionExpiredModal();
+               
+
+                }
+            
+
+                throw new Error(`Failed to fetch total tickets: ${response.status}`);
+
+
+            }
+            } catch (error) {
+                showToast('Entry not found', 'error');
+            }
+        }
+
+   
+        function validateUppercaseInput(input) {
+            // Allow only uppercase letters (A-Z), numbers (0-9), hyphen (-), and underscore (_)
+            input.value = input.value.toUpperCase().replace(/[^A-Z0-9\-_ ]/g, '');
+        }
+        // Add New Entry
+        async function addEntry(event) {
+            event.preventDefault(); 
+        
+            const newEntry = {
+                gmType: document.getElementById('gmType').value,
+                gmDescription: document.getElementById('gmDescription').value.toUpperCase(), // Ensure uppercase before storing
+                isActive: document.getElementById('isActive').checked
+            };
+        
+            try {
+
+                const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+            
+
+
+
+                const response = await fetch('http://103.115.194.81:8080/ticket/Admin/General/addMaster', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Pass token for authentication
+                    },
+                    body: JSON.stringify(newEntry),
+                });
+        
+                 // Check response status
+            if (response.status === 200) {
+        
+                if (response.ok) {
+                    showToast('Entry added successfully', 'success');
+                    document.getElementById('addForm').reset();
+                    fetchAllEntries();
+                }else if (response.status === 400) {  // HttpStatus.NOT_IMPLEMENTED
+                    showToast('This entry is already present.', 'warning');
+                } else {
+                    showToast('Failed to add entry', 'error');
+                }
+            }else{
+            
+               // Handle authentication errors
+               if (response.status === 401 || response.status === 403 || response.status === 500) {
+                // Token might be expired or invalid
+                checkTokenExpiration();
+                showSessionExpiredModal();
+            }
+            throw new Error(`Failed to fetch total tickets: ${response.status}`);
+
+            
+            }
+            } catch (error) {
+                showToast('Failed to add entry', 'error');
+            }
+        }
+        // Delete Entry
+        async function deleteEntry(id) {
+            try {
+                const response = await fetch(`http://103.115.194.81:8080/ticket/General/deletebyid/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    showToast('Entry deleted successfully', 'success');
+                    fetchAllEntries('deleteEntryTable');
+                }
+            } catch (error) {
+                showToast('Failed to delete entry', 'error');
+            }
+        }
+
+        // Delete Entry by ID
+        async function deleteById() {
+            const deleteId = document.getElementById('deleteSearchId').value;
+            if (!deleteId) return;
+
+            try {
+                const response = await fetch(`http://103.115.194.81:8080/ticket/General/deletebyid/${deleteId}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    showToast('Entry deleted successfully', 'success');
+                    fetchAllEntries('deleteEntryTable');
+                }
+            } catch (error) {
+                showToast('Failed to delete entry', 'error');
+            }
+        }
+
+        // Initial load
+        fetchCompanies();
+        fetchAllEntries();
+    </script>
+</body>
+</html>
+

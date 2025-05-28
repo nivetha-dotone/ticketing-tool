@@ -1,14 +1,13 @@
 package com.dot1.ticket_track.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.math3.ode.sampling.DummyStepHandler;
+import java.time.Duration;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -22,22 +21,20 @@ public class Sla_Masters {
     private Long slaId;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "tickettype")
-    private  mGeneralMaster tickettype;
+    @JoinColumn(name = "tickettypeSal")
+    private  mGeneralMaster tickettypeSal;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ticketlevel")
-    private  mGeneralMaster ticketlevel;
+    @JoinColumn(name = "ticketlevelSal")
+    private  mGeneralMaster ticketlevelSal;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "priority")
+    @JoinColumn(name = "prioritySal")
     private mGeneralMaster priority;
-
- // to store a timeing only for further calculation
 
     @Column(name = "sla_time")
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime slaTime;
+    private Duration slaTime;
 
 
 

@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login Reset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+        }
+        
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+        
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+        
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+        
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .profile-details {
+            text-align: right;
+        }
+        
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        .sidebar ul li a:hover {
+            background-color: #555;
+        }
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+        .main-content {
+            margin-right: 1%;
+            margin-left: 223px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 5.5%;
+            min-height: calc(100vh - 160px);
+        }
+        
+        .main-content.collapsed {
+            margin-left: 6%;
+            margin-right: 6%;
+        }
+        
+        .reset-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        
+        .reset-container h2 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .search-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .search-section h3 {
+            color: #003366;
+            margin-bottom: 15px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #003366;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #003366;
+            box-shadow: 0 0 5px rgba(0, 51, 102, 0.3);
+        }
+        
+        .search-btn, .reset-btn {
+            padding: 10px 20px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            height: fit-content;
+        }
+        
+        .search-btn:hover, .reset-btn:hover {
+            background-color: #004a8f;
+        }
+        
+        .search-btn:disabled, .reset-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .user-details {
+            background-color: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .user-details h3 {
+            color: #003366;
+            margin-bottom: 15px;
+        }
+        
+        .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #003366;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .reset-section {
+            background-color: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            display: none;
+        }
+        
+        .reset-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .password-form {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .password-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .password-validation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            margin-top: 10px;
+        }
+        
+        .validation-title {
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 10px;
+        }
+        
+        .validation-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .validation-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .validation-check.valid {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .validation-check.invalid {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .validation-check.pending {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .password-input-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #003366;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .warning-message {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+        
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-locked {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .user-type-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .type-employee {
+            background-color: #cce5ff;
+            color: #0066cc;
+        }
+        
+        .type-client {
+            background-color: #e6f3ff;
+            color: #0080ff;
+        }
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+        
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="adminDashboard">Dashboard</a></li>
+            <li class="active"><a href="adminmaster">Masters</a></li>
+            <li><a href="adminticketCr">Create Ticket</a></li>
+            <li><a href="admintAlltickets">Tickets</a></li>
+            <li><a href="admintReports">Reports</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <a href="adminmaster" class="back-btn">← Back to Masters</a>
+        
+        <div class="reset-container">
+            <h2>User Login Reset</h2>
+            
+            <!-- Search Section -->
+            <div class="search-section">
+                <h3>Search User</h3>
+                <form class="search-form" id="searchForm">
+                    <div class="form-group">
+                        <label for="searchType">Search By:</label>
+                        <select id="searchType" name="searchType" onchange="updateSearchPlaceholder()">
+                            <option value="email">Username/EmailID</option>
+                            <option value="empCode">Employee Code</option>
+                            <option value="clientCode">Client Code</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="searchValue">Search Value:</label>
+                        <input type="text" id="searchValue" name="searchValue" required 
+                               placeholder="Enter username or email">
+                    </div>
+                    <button type="submit" class="search-btn" id="searchBtn">Search User</button>
+                </form>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" id="loadingDiv">
+                <div class="loading-spinner"></div>
+                <p>Searching for user...</p>
+            </div>
+            
+            <!-- Messages -->
+            <div class="message success-message" id="successMessage"></div>
+            <div class="message error-message" id="errorMessage"></div>
+            <div class="message warning-message" id="warningMessage"></div>
+            
+            <!-- User Details Section -->
+            <div class="user-details" id="userDetailsSection">
+                <h3>User Details</h3>
+                <div class="user-info" id="userInfo">
+                    <!-- User information will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Reset Section -->
+            <div class="reset-section" id="resetSection">
+                <h3>⚠️ Reset User Login</h3>
+                <p><strong>Warning:</strong> This action will reset the user's password and may affect their account status.</p>
+                <form class="password-form" id="resetForm">
+                    <div class="password-row">
+                        <div class="form-group">
+                            <label for="newPassword">New Password:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="newPassword" name="newPassword" required 
+                                       placeholder="Enter new password" oninput="validatePassword()">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('newPassword')">👁️</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password:</label>
+                            <div class="password-input-container">
+                                <input type="password" id="confirmPassword" name="confirmPassword" required 
+                                       placeholder="Confirm new password" oninput="validatePassword()">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Password Validation -->
+                    <div class="password-validation">
+                        <div class="validation-title">Password Requirements:</div>
+                        <div class="validation-item">
+                            <div class="validation-check pending" id="lengthCheck">-</div>
+                            <span>Minimum 8 characters</span>
+                        </div>
+                        <div class="validation-item">
+                            <div class="validation-check pending" id="capitalCheck">-</div>
+                            <span>At least one capital letter</span>
+                        </div>
+                        <div class="validation-item">
+                            <div class="validation-check pending" id="specialCheck">-</div>
+                            <span>One special character (@, $, #, &)</span>
+                        </div>
+                        <div class="validation-item">
+                            <div class="validation-check pending" id="numberCheck">-</div>
+                            <span>At least three numbers</span>
+                        </div>
+                        <div class="validation-item">
+                            <div class="validation-check pending" id="matchCheck">-</div>
+                            <span>Passwords match</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="reset-btn" id="resetBtn" disabled>Reset Login</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Session Expiry Modal -->
+    <div id="sessionModal" class="modal">
+        <div class="modal-content">
+            <h3>Session Expired</h3>
+            <p>Your session has expired. Please login again to continue.</p>
+            <div class="modal-buttons">
+                <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+        let currentUser = null;
+        let passwordValidation = {
+            length: false,
+            capital: false,
+            special: false,
+            numbers: false,
+            match: false
+        };
+        
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+            
+            // Add event listeners
+            document.getElementById('searchForm').addEventListener('submit', handleUserSearch);
+            document.getElementById('resetForm').addEventListener('submit', handlePasswordReset);
+        });
+        
+        // Function to update search placeholder based on selected type
+        function updateSearchPlaceholder() {
+            const searchType = document.getElementById('searchType').value;
+            const searchValue = document.getElementById('searchValue');
+            
+            switch(searchType) {
+                case 'email':
+                    searchValue.placeholder = 'Enter username or email';
+                    searchValue.type = 'text';
+                    break;
+                case 'empCode':
+                    searchValue.placeholder = 'Enter employee code (e.g., Emp0003)';
+                    searchValue.type = 'text';
+                    break;
+                case 'clientCode':
+                    searchValue.placeholder = 'Enter client code (numbers only)';
+                    searchValue.type = 'number';
+                    break;
+            }
+        }
+        
+        // Function to toggle password visibility
+        function togglePasswordVisibility(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+        
+        // Function to validate password requirements
+        function validatePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Check length (minimum 8 characters)
+            passwordValidation.length = newPassword.length >= 8;
+            updateValidationCheck('lengthCheck', passwordValidation.length);
+            
+            // Check capital letter
+            passwordValidation.capital = /[A-Z]/.test(newPassword);
+            updateValidationCheck('capitalCheck', passwordValidation.capital);
+            
+            // Check special character (@, $, #, &)
+            passwordValidation.special = /[@$#&]/.test(newPassword);
+            updateValidationCheck('specialCheck', passwordValidation.special);
+            
+            // Check numbers (at least 3)
+            const numberMatches = newPassword.match(/\d/g);
+            passwordValidation.numbers = numberMatches && numberMatches.length >= 3;
+            updateValidationCheck('numberCheck', passwordValidation.numbers);
+            
+            // Check password match
+            passwordValidation.match = newPassword === confirmPassword && newPassword.length > 0;
+            updateValidationCheck('matchCheck', passwordValidation.match);
+            
+            // Enable/disable reset button
+            const allValid = Object.values(passwordValidation).every(valid => valid);
+            document.getElementById('resetBtn').disabled = !allValid;
+        }
+        
+        // Function to update validation check display
+        function updateValidationCheck(checkId, isValid) {
+            const checkElement = document.getElementById(checkId);
+            
+            if (isValid) {
+                checkElement.className = 'validation-check valid';
+                checkElement.textContent = '✓';
+            } else {
+                checkElement.className = 'validation-check invalid';
+                checkElement.textContent = '✗';
+            }
+        }
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true;
+            }
+        
+            const expiryTime = Number(tokenExpiry);
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true;
+            }
+        
+            return Date.now() > expiryTime;
+        }
+        
+        // Function to check token expiration
+        function checkTokenExpiration() {
+            if (isTokenExpired()) {
+                showSessionExpiredModal();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.style.display = 'block';
+        }
+        
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = 'Logout';
+        }
+        
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+        
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const employeeDataStr = localStorage.getItem('employeeData');
+                if (!employeeDataStr) {
+                    return;
+                }
+                
+                const employeeData = JSON.parse(employeeDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of employee name for avatar
+                const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${employeeData.empName || 'User'}</p>
+                        <p class="admin-id">Admin ID: ${employeeData.empCode || 'N/A'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('employeeData');
+            
+            // Redirect to login page
+            window.location.href = 'Logout';
+        }
+
+        // Helper function to make authenticated API requests
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+            
+            // Set default options
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            // Merge options
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...(options.headers || {})
+                }
+            };
+            
+            try {
+                const response = await fetch(url, mergedOptions);
+                
+                if (response.status === 401 || response.status === 403) {
+                    checkTokenExpiration();
+                    throw new Error('Authentication failed');
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('API request error:', error);
+                throw error;
+            }
+        }
+
+        // Function to show message
+        function showMessage(message, type = 'success') {
+            const successDiv = document.getElementById('successMessage');
+            const errorDiv = document.getElementById('errorMessage');
+            const warningDiv = document.getElementById('warningMessage');
+            
+            // Hide all messages first
+            successDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            warningDiv.style.display = 'none';
+            
+            switch(type) {
+                case 'success':
+                    successDiv.textContent = message;
+                    successDiv.style.display = 'block';
+                    break;
+                case 'error':
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                    break;
+                case 'warning':
+                    warningDiv.textContent = message;
+                    warningDiv.style.display = 'block';
+                    break;
+            }
+        }
+
+        // Function to show/hide loading
+        function showLoading(show, message = 'Processing...') {
+            const loadingDiv = document.getElementById('loadingDiv');
+            const loadingText = loadingDiv.querySelector('p');
+            
+            if (show) {
+                loadingText.textContent = message;
+                loadingDiv.style.display = 'block';
+            } else {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // Function to get account status badge
+        function getStatusBadge(isActive, isLocked) {
+            if (isLocked) {
+                return '<span class="status-badge status-locked">Locked</span>';
+            } else if (isActive) {
+                return '<span class="status-badge status-active">Active</span>';
+            } else {
+                return '<span class="status-badge status-inactive">Inactive</span>';
+            }
+        }
+        
+        // Function to get user type badge
+        function getUserTypeBadge(userData) {
+            // If cmeMaster is null, it's an employee; if emp_Id is null, it's a client
+            if (userData.cmeMaster === null && userData.emp_Id !== null) {
+                return '<span class="user-type-badge type-employee">Employee</span>';
+            } else if (userData.emp_Id === null && userData.cmeMaster !== null) {
+                return '<span class="user-type-badge type-client">Client</span>';
+            } else {
+                return '<span class="user-type-badge type-employee">Unknown</span>';
+            }
+        }
+
+        // Function to display user details
+        function displayUserDetails(userData) {
+            const userInfo = document.getElementById('userInfo');
+            const userDetailsSection = document.getElementById('userDetailsSection');
+            const resetSection = document.getElementById('resetSection');
+            
+            // Determine user type and display appropriate information
+            const isEmployee = userData.cmeMaster === null && userData.emp_Id !== null;
+            const isClient = userData.emp_Id === null && userData.cmeMaster !== null;
+            
+            let userInfoHTML = `
+                <div class="info-item">
+                    <span class="info-label">Username:</span>
+                    <span class="info-value">${userData.userID || 'N/A'} ${getUserTypeBadge(userData)}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Role:</span>
+                    <span class="info-value">${userData.role || 'N/A'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Account Status:</span>
+                    <span class="info-value">${getStatusBadge(!userData.isactUser === false)}</span>
+                </div>
+               
+            `;
+            
+            if (isEmployee) {
+                // Display employee-specific information
+                userInfoHTML += `
+                    <div class="info-item">
+                        <span class="info-label">Employee ID:</span>
+                        <span class="info-value">${userData.emp_Id?.empId || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Employee Code:</span>
+                        <span class="info-value">${userData.emp_Id?.empCode || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Employee Name:</span>
+                        <span class="info-value">${userData.emp_Id?.empName || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${userData.emp_Id?.emailId || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">${userData.emp_Id?.phoneNo || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Company:</span>
+                        <span class="info-value">${userData.emp_Id?.companyName || 'N/A'}</span>
+                    </div>
+                `;
+            } else if (isClient) {
+                // Display client-specific information
+                userInfoHTML += `
+                    <div class="info-item">
+                        <span class="info-label">Client ID:</span>
+                        <span class="info-value">${userData.cmeMaster?.cmeId || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Client Name:</span>
+                        <span class="info-value">${userData.cmeMaster?.cmeName || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Designation:</span>
+                        <span class="info-value">${userData.cmeMaster?.cmeDesignation || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">${userData.cmeMaster?.cmeemailId || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">${userData.cmeMaster?.cmephoneNo || 'N/A'}</span>
+                    </div>
+                `;
+            }
+            
+            userInfo.innerHTML = userInfoHTML;
+            userDetailsSection.style.display = 'block';
+            resetSection.style.display = 'block';
+        }
+
+        // Function to handle user search
+        async function handleUserSearch(event) {
+            event.preventDefault();
+            
+            const searchType = document.getElementById('searchType').value;
+            const searchValue = document.getElementById('searchValue').value.trim();
+            
+            if (!searchValue) {
+                showMessage('Please enter a search value.', 'error');
+                return;
+            }
+            
+            // Validate client code is numeric
+            if (searchType === 'clientCode' && !/^\d+$/.test(searchValue)) {
+                showMessage('Client code must contain only numbers.', 'error');
+                return;
+            }
+            
+            // Hide previous results
+            document.getElementById('userDetailsSection').style.display = 'none';
+            document.getElementById('resetSection').style.display = 'none';
+            currentUser = null;
+            
+            // Reset password validation
+            passwordValidation = {
+                length: false,
+                capital: false,
+                special: false,
+                numbers: false,
+                match: false
+            };
+            document.getElementById('resetForm').reset();
+            document.querySelectorAll('.validation-check').forEach(check => {
+                check.className = 'validation-check pending';
+                check.textContent = '-';
+            });
+            
+            // Show loading
+            showLoading(true, 'Searching for user...');
+            
+            // Hide previous messages
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('warningMessage').style.display = 'none';
+            
+            try {
+                let apiUrl;
+                
+                switch(searchType) {
+                    case 'email':
+                        apiUrl = `http://103.115.194.81:8080/ticket/Admin/getUserByEmail/${encodeURIComponent(searchValue)}`;
+                        break;
+                    case 'empCode':
+                        apiUrl = `http://103.115.194.81:8080/ticket/Admin/getUserByEmpCode/${encodeURIComponent(searchValue)}`;
+                        break;
+                    case 'clientCode':
+                        apiUrl = `http://103.115.194.81:8080/ticket/Admin/getUserByClientCode/${encodeURIComponent(searchValue)}`;
+                        break;
+                    default:
+                        throw new Error('Invalid search type');
+                }
+                
+                const response = await fetchWithAuth(apiUrl, {
+                    method: 'GET'
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUser = userData;
+                    displayUserDetails(userData);
+                    showMessage('User found successfully!', 'success');
+                } else if (response.status === 404) {
+                    showMessage('User not found. Please check your search criteria.', 'error');
+                } else {
+                    const errorText = await response.text();
+                    showMessage(`Error: ${errorText || 'Failed to search user'}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('User search error:', error);
+                
+                if (error.message === 'Authentication failed') {
+                    showMessage('Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        redirectToLogin();
+                    }, 2000);
+                } else {
+                    showMessage('An error occurred while searching. Please try again.', 'error');
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Function to handle password reset
+        async function handlePasswordReset(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                showMessage('Please search and select a user first.', 'error');
+                return;
+            }
+            
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            
+            // Final validation check
+            if (!Object.values(passwordValidation).every(valid => valid)) {
+                showMessage('Please ensure all password requirements are met.', 'error');
+                return;
+            }
+            
+            // Confirm action
+            if (!confirm(`Are you sure you want to reset the password for user: ${currentUser.userID}?`)) {
+                return;
+            }
+            
+            // Show loading
+            showLoading(true, 'Resetting password...');
+            
+            try {
+                const apiUrl = `http://103.115.194.81:8080/ticket/Admin/updatePassOnRequest/${encodeURIComponent(currentUser.userID)}/${encodeURIComponent(newPassword)}`;
+                
+                const response = await fetchWithAuth(apiUrl, {
+                    method: 'PUT'
+                });
+                
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log('Password reset response:', responseData);
+                    
+                    showMessage(`Password has been successfully reset for user: ${currentUser.userID}`, 'success');
+                    
+                    // Clear the reset form
+                    document.getElementById('resetForm').reset();
+                    
+                    // Reset password validation
+                    passwordValidation = {
+                        length: false,
+                        capital: false,
+                        special: false,
+                        numbers: false,
+                        match: false
+                    };
+                    document.querySelectorAll('.validation-check').forEach(check => {
+                        check.className = 'validation-check pending';
+                        check.textContent = '-';
+                    });
+                    document.getElementById('resetBtn').disabled = true;
+                    
+                } else {
+                    const errorText = await response.text();
+                    showMessage(`Error: ${errorText || 'Failed to reset password'}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Password reset error:', error);
+                
+                if (error.message === 'Authentication failed') {
+                    showMessage('Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        redirectToLogin();
+                    }, 2000);
+                } else {
+                    showMessage('An error occurred while resetting password. Please try again.', 'error');
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+    </script>
+
+</body>
+</html>

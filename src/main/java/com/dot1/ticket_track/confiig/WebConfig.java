@@ -29,8 +29,8 @@ public class WebConfig {
         config.setAllowCredentials(true);
 
         config.addAllowedOrigin("http://127.0.0.1:5500");
-//      config.addAllowedOrigin("http://127.0.0.1:5501");
-        config.addAllowedOrigin("http://localhost:3001");
+      config.addAllowedOrigin("http://localhost:8087");
+        config.addAllowedOrigin("http://localhost:8089");
 
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,

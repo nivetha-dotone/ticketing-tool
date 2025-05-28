@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -28,8 +30,7 @@ import java.util.List;
 @EnableTransactionManagement
 @SpringBootApplication
 @EnableJpaRepositories("com.dot1.ticket_track.repository")
-public class TicketTrackApplication
-		implements CommandLineRunner {
+public class TicketTrackApplication extends SpringBootServletInitializer implements CommandLineRunner {
 
 
 	@Autowired
@@ -45,6 +46,12 @@ public class TicketTrackApplication
 
 	public static void main(String[] args) {
 		SpringApplication.run(TicketTrackApplication.class, args);
+	}
+
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(TicketTrackApplication.class);
 	}
 
 	@Transactional
@@ -105,8 +112,5 @@ public class TicketTrackApplication
 
 		}
 		}
-
-
-
 
 }

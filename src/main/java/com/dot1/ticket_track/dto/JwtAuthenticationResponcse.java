@@ -18,4 +18,6 @@ public class JwtAuthenticationResponcse {
 
     private mClientCMEMaster clientCMEMaster;
 
+    private Boolean userPassActive;
+
 }

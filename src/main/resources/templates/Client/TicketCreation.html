@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Ticket Creation</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+        
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+        
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+        
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+        
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .profile-details {
+            text-align: right;
+        }
+        
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 210px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .sidebar ul li a:hover, 
+        .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-right: 1%;
+            margin-left: 221px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 7%;
+        }
+        
+        .main-content.collapsed {
+            margin-left: 0;
+        }
+
+        /* Form Styles */
+        .ticket-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            color: #003366;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group label.required::after {
+            content: " *";
+            color: red;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="datetime-local"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group input[readonly],
+        .form-group select[readonly] {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #003366;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 4px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.success { background-color: #28a745; }
+        .toast.error { background-color: #dc3545; }
+        .toast.warning { background-color: #ffc107; }
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+        
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        #ticketDetails {
+            margin: 15px 0;
+            text-align: left;
+            padding: 10px;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            border-left: 4px solid #003366;
+        }
+
+        #ticketDetails p {
+            margin: 8px 0;
+        }
+
+        #ticketDetails strong {
+            color: #003366;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #003366;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        .loader-text {
+            color: white;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="clientDashboard">Client Dashboard</a></li>
+            <li ><a href="clienttktALL" >My Tickets</a></li>
+            <li class="active"><a href="clientcreation">New Ticket</a></li>
+            <li><a href="#">Notifications</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <form id="ticketForm" class="ticket-form" enctype="multipart/form-data">
+            <div class="form-header">
+                <h2>New Ticket</h2>
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()"><< Return</button>
+                    <button type="submit" class="btn btn-primary">Save & Next</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAndReturn()">Save & Return</button>
+                    <!-- <button type="reset" class="btn btn-secondary">Reset</button> -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketType" class="required">Ticket Type</label>
+                <select id="ticketType" required>
+                    <option value="">Select Ticket Type</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketLevel" class="required">Ticket Level</label>
+                <select id="ticketLevel" required>
+                    <option value="">Select Ticket Level</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority" class="required">Priority</label>
+                <select id="priority" required>
+                    <option value="">Select Priority</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="company" class="required">Business Entity</label>
+                <input type="text" id="company" readonly>
+                <input type="hidden" id="companyId">
+            </div>
+
+            <div class="form-group">
+                <label for="client" class="required">Client</label>
+                <input type="text" id="client" readonly>
+                <input type="hidden" id="clientId">
+            </div>
+
+            <div class="form-group">
+                <label for="module" class="required">Module</label>
+                <input type="text" id="module" readonly>
+                <input type="hidden" id="moduleId">
+            </div>
+
+            <div class="form-group">
+                <label for="cme" class="required">Customer Module Expert</label>
+                <input type="text" id="cme" readonly>
+                <input type="hidden" id="cmeId">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="ticketNote" class="required">Issue Summary</label>
+                <input type="text" id="ticketNote" required>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="ticketDesc" class="required">Description</label>
+                <textarea id="ticketDesc" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="reportedOn" class="required">Reported On</label>
+                <input type="datetime-local" id="reportedOn" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="attachment">Attachment</label>
+                <input type="file" id="attachment" accept=".pdf,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png" multiple >
+            </div>
+            <div class="form-header">
+            </div>
+            <div class="form-header">
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="window.history.back()"><< Return</button>
+                    <button type="submit" class="btn btn-primary">Save & Next</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAndReturn()">Save & Return</button>
+                    <!-- <button type="reset" class="btn btn-secondary">Reset</button> -->
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    
+    <!-- Session Expiry Modal -->
+    <div id="sessionModal" class="modal">
+        <div class="modal-content">
+            <h3>Session Expired</h3>
+            <p>Your session has expired. Please login again to continue.</p>
+            <div class="modal-buttons">
+                <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h3>Ticket Created Successfully</h3>
+            <div id="ticketDetails">
+                <!-- Ticket details will be populated here -->
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button primary-button" onclick="closeSuccessModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader-container">
+            <div class="loader"></div>
+            <div class="loader-text">Loading...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+            
+            // Initialize form with client data
+            initializeForm();
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+        });
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true; // If there's no expiry time stored, assume expired
+            }
+        
+            const expiryTime = Number(tokenExpiry); // Convert to number safely
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true; // Treat invalid values as expired
+            }
+        
+            console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+        
+            return Date.now() > expiryTime;
+        }
+        
+        // Function to check token expiration
+        function checkTokenExpiration() {
+            if (isTokenExpired()) {
+                showSessionExpiredModal();
+            }
+        }
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.style.display = 'block';
+            
+            // Prevent closing the modal by clicking outside
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    // Do nothing - force user to click the login button
+                }
+            };
+        }
+        
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = 'Logout';
+        }
+        
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+        
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const clientCMEDataStr = localStorage.getItem('clientCMEData');
+                if (!clientCMEDataStr) {
+                    return;
+                }
+                
+                const clientCMEData = JSON.parse(clientCMEDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of client name for avatar
+                const firstLetter = clientCMEData.cmeName ? clientCMEData.cmeName.charAt(0).toUpperCase() : 'U';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${clientCMEData.cmeName || 'User'}</p>
+                        <p class="admin-id">Clinet ID: ${clientCMEData.cmeId || 'N/A'}</p>
+                        <p class="admin-id">Module: ${clientCMEData.cmemodulesMaster.modcode || 'N/A'}</p>
+                        <p class="admin-id">Client: ${clientCMEData.clientMasterIdCme.clientName || 'N/A'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('clientCMEData');
+            
+            // Redirect to login page
+            window.location.href = 'Logout';
+        }
+        
+        // Function to save authentication token with expiry
+        function saveAuthToken(token, expiresIn) {
+            const expiryTime = Date.now() + (expiresIn * 1000);
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('tokenExpiry', expiryTime);
+            console.log("Token Expiry Set:", expiryTime);
+        }
+        
+        // Toast notification function
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+        
+        // Toggle sidebar function
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+        
+        // Fetch dropdown data
+        async function fetchDropdownData(url) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showToast('Failed to fetch data', 'error');
+                return [];
+            }
+        }
+        
+        // Initialize form with client data and dropdowns
+        async function initializeForm() {
+            try {
+                // Load client data from localStorage
+                const clientCMEDataStr = localStorage.getItem('clientCMEData');
+                if (!clientCMEDataStr) {
+                    showToast('Client data not found', 'error');
+                    return;
+                }
+                
+                const clientCMEData = JSON.parse(clientCMEDataStr);
+                
+                // Set Business Entity field
+                const companyField = document.getElementById('company');
+                const companyIdField = document.getElementById('companyId');
+                companyField.value = clientCMEData.cmemodulesMaster.companyMaster.cmpnm;
+                companyIdField.value = clientCMEData.cmemodulesMaster.companyMaster.cmpid;
+                
+                // Set Client field
+                const clientField = document.getElementById('client');
+                const clientIdField = document.getElementById('clientId');
+                clientField.value = `${clientCMEData.clientMasterIdCme.clientCode} ${clientCMEData.clientMasterIdCme.clientName}`;
+                clientIdField.value = clientCMEData.clientMasterIdCme.clientId;
+                
+                // Set Module field
+                const moduleField = document.getElementById('module');
+                const moduleIdField = document.getElementById('moduleId');
+                moduleField.value = clientCMEData.cmemodulesMaster.modcode;
+                moduleIdField.value = clientCMEData.cmemodulesMaster.modId;
+                
+                // Set CME field
+                const cmeField = document.getElementById('cme');
+                const cmeIdField = document.getElementById('cmeId');
+                cmeField.value = clientCMEData.cmeName;
+                cmeIdField.value = clientCMEData.cmeId;
+                
+                // Set current date for reported on field
+                const reportedOnField = document.getElementById('reportedOn');
+                const now = new Date();
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(now.getDate() - 7);
+                
+                const formatDate = (date) => {
+                    return date.getFullYear() + "-" +
+                        String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                        String(date.getDate()).padStart(2, '0') + "T" +
+                        String(date.getHours()).padStart(2, '0') + ":" +
+                        String(date.getMinutes()).padStart(2, '0');
+                };
+                
+                reportedOnField.min = formatDate(sevenDaysAgo);
+                reportedOnField.max = formatDate(now);
+                reportedOnField.value = formatDate(now);
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const types = await fetchDropdownData('http://103.115.194.81:8080/ticket/Client/dropofType', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });  
+                const typeSelect = document.getElementById('ticketType');
+                types.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.gmid;
+                    option.textContent = type.gmDescription;
+                    typeSelect.appendChild(option);
+                });
+                
+                // Fetch ticket levels
+                const levels = await fetchDropdownData('http://103.115.194.81:8080/ticket/Client/dropofLevel', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }); 
+                const levelSelect = document.getElementById('ticketLevel');
+                levels.forEach(level => {
+                    const option = document.createElement('option');
+                    option.value = level.gmid;
+                    option.textContent = level.gmDescription;
+                    levelSelect.appendChild(option);
+                });
+                
+                // Fetch priorities
+
+                const priorities = await fetchDropdownData('http://103.115.194.81:8080/ticket/Client/dropofPriority', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }); 
+                const prioritySelect = document.getElementById('priority');
+                priorities.forEach(priority => {
+                    const option = document.createElement('option');
+                    option.value = priority.gmid;
+                    option.textContent = priority.gmDescription;
+                    prioritySelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Error initializing form:', error);
+                showToast('Failed to initialize form', 'error');
+            }
+        }
+        
+        // Format date for API
+        function formatLocalDateTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.getFullYear() + "-" +
+                   String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                   String(date.getDate()).padStart(2, '0') + "T" +
+                   String(date.getHours()).padStart(2, '0') + ":" +
+                   String(date.getMinutes()).padStart(2, '0') + ":" +
+                   String(date.getSeconds()).padStart(2, '0');
+        }
+        
+        // Handle form submission
+        document.getElementById('ticketForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const confirmCreate = confirm("Are you sure you want to create this ticket?");
+            if (!confirmCreate) return;
+            
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            const reportedOnValue = document.getElementById('reportedOn').value;
+            const formattedReportedOn = formatLocalDateTime(reportedOnValue);
+            
+            const ticketData = {
+                tickettype: { gmid: document.getElementById('ticketType').value },
+                ticketlevel: { gmid: document.getElementById('ticketLevel').value },
+                priority: { gmid: document.getElementById('priority').value },
+                companyname: document.getElementById('company').value,
+                clientid: { clientId: document.getElementById('clientId').value },
+                ticketnote: document.getElementById('ticketNote').value,
+                ticketdesc: document.getElementById('ticketDesc').value,
+                modulesid: { modId: document.getElementById('moduleId').value },
+                cmexpertId: { cmeId: document.getElementById('cmeId').value },
+                employeeId: null, // Assign to is null for client tickets
+                reportedon: formattedReportedOn
+            };
+            
+            const formData = new FormData();
+            formData.append("tickets", JSON.stringify(ticketData));
+            
+            const fileInput = document.getElementById('attachment');
+            if (fileInput.files.length > 0) {
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append("files", fileInput.files[i]);
+                }
+            }
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch('http://103.115.194.81:8080/ticket/Client/CreationTktwithD', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Pass token for authentication
+                    },
+                    body: formData
+                });
+                
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                if (response.ok) {
+                    const ticketResponse = await response.json();
+                    
+                    // Show success popup with ticket details
+                    const ticketDetailsDiv = document.getElementById('ticketDetails');
+                    ticketDetailsDiv.innerHTML = `
+                        <p><strong>Ticket Code:</strong> ${ticketResponse.ticketcode}</p>
+                        <p><strong>Issue:</strong> ${ticketResponse.ticketnote}</p>
+                        <p><strong>Created On:</strong> ${formatDateTime(ticketResponse.createdon)}</p>
+                    `;
+                    
+                    // Show the success modal
+                    document.getElementById('successModal').style.display = 'block';
+                    
+                    // Reset only the user-editable fields
+                    document.getElementById('ticketType').value = '';
+                    document.getElementById('ticketLevel').value = '';
+                    document.getElementById('priority').value = '';
+                    document.getElementById('ticketNote').value = '';
+                    document.getElementById('ticketDesc').value = '';
+                    document.getElementById('attachment').value = '';
+                    
+                    // Reset reportedOn to current date
+                    const now = new Date();
+                    const formatDate = (date) => {
+                        return date.getFullYear() + "-" +
+                            String(date.getMonth() + 1).padStart(2, '0') + "-" +
+                            String(date.getDate()).padStart(2, '0') + "T" +
+                            String(date.getHours()).padStart(2, '0') + ":" +
+                            String(date.getMinutes()).padStart(2, '0');
+                    };
+                    document.getElementById('reportedOn').value = formatDate(now);
+                    
+                } else {
+                    throw new Error('Failed to create ticket');
+                }
+            } catch (error) {
+                // Hide loading overlay on error too
+                document.getElementById('loadingOverlay').style.display = 'none';
+                console.error('Error:', error);
+                showToast('Failed to create ticket', 'error');
+            }
+        });
+        
+        // Save and return function
+        function saveAndReturn() {
+            document.getElementById('ticketForm').dispatchEvent(new Event('submit'));
+            setTimeout(() => window.history.back(), 2500);
+        }
+
+        // Function to close the success modal
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Function to format date time for display
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return 'N/A';
+
+            try {
+                // Convert "15-04-2025 T 17:27:57" to "2025-04-15T17:27:57"
+                const cleanedStr = dateTimeStr.replace(/\s*T\s*/, ' '); // Remove the "T" with optional spaces
+                const [datePart, timePart] = cleanedStr.split(' ');
+                const [day, month, year] = datePart.split('-');
+
+                if (!day || !month || !year || !timePart) return 'N/A';
+
+                const isoString = `${year}-${month}-${day}T${timePart}`;
+                const date = new Date(isoString);
+
+                if (isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+
+                // Extract parts manually
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const hour12 = hours % 12 || 12; // Convert to 12-hour format
+
+                // Pad minutes and hours
+                const paddedHour = hour12.toString().padStart(2, '0');
+                const paddedMinutes = minutes.toString().padStart(2, '0');
+
+                return `${day}/${month}/${year}, ${paddedHour}:${paddedMinutes} ${ampm}`;
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return 'N/A';
+            }
+        }
+
+        // Update the saveAndReturn function to check if modal is open
+        function saveAndReturn() {
+            document.getElementById('ticketForm').dispatchEvent(new Event('submit'));
+            // We'll wait for the modal to be closed before returning
+            const successModal = document.getElementById('successModal');
+            
+            // Set up an observer to check when modal is closed
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'style' && 
+                        successModal.style.display === 'none') {
+                        window.history.back();
+                        observer.disconnect();
+                    }
+                });
+            });
+            
+            observer.observe(successModal, { attributes: true });
+            
+            // Fallback in case modal is never shown (error case)
+            setTimeout(() => {
+                observer.disconnect();
+                if (successModal.style.display !== 'block') {
+                    window.history.back();
+                }
+            }, 2500);
+        }
+
+        // Close success modal when clicking outside
+        window.onclick = function(event) {
+            const sessionModal = document.getElementById('sessionModal');
+            const successModal = document.getElementById('successModal');
+            
+            if (event.target === successModal) {
+                closeSuccessModal();
+            } else if (event.target === sessionModal) {
+                // Do nothing for session modal - force user to click the login button
+            }
+        };
+    </script>
+</body>
+</html>

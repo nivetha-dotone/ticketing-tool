@@ -6,6 +6,7 @@ import com.dot1.ticket_track.dto.tiketSubDto;
 import com.dot1.ticket_track.dto.uatTranscationDto;
 import com.dot1.ticket_track.entity.*;
 import com.dot1.ticket_track.repository.AttachmentMasteRepo;
+import com.dot1.ticket_track.services.EmployeeService;
 import com.dot1.ticket_track.services.ModuleServices;
 import com.dot1.ticket_track.services.TicketDservice;
 import com.dot1.ticket_track.services.UatTranscationService;
@@ -47,7 +48,8 @@ public class ManagerController {
     private ModuleServices moduleServices;
     @Autowired
     private UatTranscationService uatTrservice;
-
+    @Autowired
+    private EmployeeService employeeService;
 
     @PostMapping(value = "/CreationTktwithD", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> CreateMasterwithAttachment( @RequestPart("tickets") String  tickets,
@@ -420,6 +422,19 @@ public class ManagerController {
         }
     }
 
+    @PutMapping("/updatePassword/{username}/{pass}")
+    public ResponseEntity<?> updatePass(@PathVariable String username, @PathVariable String pass){
+        try{
+            mUserLogin_demo mUserLoginDemo = employeeService.updatePass(username, pass);
+            if(mUserLoginDemo!=null){
+                return new ResponseEntity<>(mUserLoginDemo,HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Username not found", HttpStatus.UNAUTHORIZED);
+        }
+    }
 
 
 

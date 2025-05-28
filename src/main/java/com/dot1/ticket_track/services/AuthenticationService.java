@@ -105,6 +105,7 @@ private  final JwtService jwtService;
             jwtAuthenticationResponcse.setRefreshToken(refreshToken);
             jwtAuthenticationResponcse.setUserID(user.getUserID());
             jwtAuthenticationResponcse.setRole(user.getRole());
+            jwtAuthenticationResponcse.setUserPassActive(user.getIsactUser());
             if(user.getEmp_Id()!=null){
                 mEmployeeMaster empId = user.getEmp_Id();
                 mModulesMaster modulesMasterId = empId.getModulesMaster_id();

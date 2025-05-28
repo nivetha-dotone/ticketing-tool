@@ -1,5 +1,6 @@
 package com.dot1.ticket_track.services;
 
+import com.dot1.ticket_track.controller.mailTrail.Emailcontroller;
 import com.dot1.ticket_track.entity.*;
 import com.dot1.ticket_track.repository.EmployeeRepository;
 import com.dot1.ticket_track.repository.UserLogin_demoRepo;
@@ -9,10 +10,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmployeeService {
 
+    @Autowired
+    private clientcmeService clientcmeService;
+
+    @Autowired
+    private Emailcontroller emailcontroller;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -70,10 +77,189 @@ private UserLogin_demoRepo userLoginDemoRepo;
         }
     }
 
+    public mUserLogin_demo updatePass(String emailId,String password){
+       try{
 
+        mUserLogin_demo mUserLoginDemo = userLoginDemoRepo.findByuserID(emailId).orElse(null);
+        if(mUserLoginDemo!=null){
+
+            mUserLoginDemo.setUserPWD(passwordEncoder.encode(password));
+            mUserLoginDemo.setIsactUser(true);
+            mUserLogin_demo saved = userLoginDemoRepo.save(mUserLoginDemo);
+            if(saved.getEmp_Id()!=null){
+                Map<String, Object> model = Map.of(
+
+                        "name", saved.getEmp_Id().getEmpName(),
+                        "requestUsername", saved.getUsername(),
+                        "requestPassword", password
+                );
+                String subject="Your Password Has Been Changed Successfully";
+                String to=saved.getUsername();
+                emailcontroller.passwordUpdatesuccess(to, model, subject);
+
+
+
+            } else if(saved.getCmeMaster()!=null) {
+                Map<String, Object> model = Map.of(
+
+                        "name", saved.getCmeMaster().getCmeemailId(),
+                        "requestUsername", saved.getUsername(),
+                        "requestPassword", password
+                );
+                String subject="Your Password Has Been Changed Successfully";
+                String to=saved.getUsername();
+                emailcontroller.passwordUpdatesuccess(to, model, subject);
+            }
+            saved.setEmp_Id(null);
+            saved.setCmeMaster(null);
+            return saved;
+        }else{
+            return  null;
+        }
+       } catch (Exception e) {
+           throw new RuntimeException(e);
+       }
+    }
+    public mUserLogin_demo updatePassbyAdmin(String emailId,String password){
+        try{
+
+            mUserLogin_demo mUserLoginDemo = userLoginDemoRepo.findByuserID(emailId).orElse(null);
+            if(mUserLoginDemo!=null){
+
+                mUserLoginDemo.setUserPWD(passwordEncoder.encode(password));
+                mUserLoginDemo.setIsactUser(false);
+                mUserLogin_demo saved = userLoginDemoRepo.save(mUserLoginDemo);
+                if(saved.getEmp_Id()!=null){
+                    Map<String, Object> model = Map.of(
+
+                            "name", saved.getEmp_Id().getEmpName(),
+                            "requestUsername", saved.getUsername(),
+                            "requestPassword", password
+                    );
+                    String subject="Your Password Has Been Changed Successfully By Admin";
+                    String to=saved.getUsername();
+                    emailcontroller.passwordUpdatesuccessByAdmin(to, model, subject);
+
+
+
+                } else if(saved.getCmeMaster()!=null) {
+                    Map<String, Object> model = Map.of(
+
+                            "name", saved.getCmeMaster().getCmeemailId(),
+                            "requestUsername", saved.getUsername(),
+                            "requestPassword", password
+                    );
+                    String subject="Your Password Has Been Changed Successfully By Admin";
+                    String to=saved.getUsername();
+                    emailcontroller.passwordUpdatesuccessByAdmin(to, model, subject);
+                }
+
+                saved.setCmeMaster(null);
+                saved.setEmp_Id(null);
+                return saved;
+            }else{
+                return  null;
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public mUserLogin_demo getUserloginpresent(String username){
+        try{
+            mUserLogin_demo passUserLogin = userLoginDemoRepo.findByuserID(username).orElse(null);
+            if(passUserLogin!=null){
+                if(passUserLogin.getCmeMaster()!=null){
+
+
+                passUserLogin.getCmeMaster().setClientMasterIdCme(null);
+                passUserLogin.getCmeMaster().setCmemodulesMaster(null);
+                return passUserLogin;
+                }else if(passUserLogin.getEmp_Id()!=null){
+
+
+                 passUserLogin.getEmp_Id().setModulesMaster_id(null);
+                 passUserLogin.getEmp_Id().setRoleMaster_id(null);
+                   return passUserLogin;
+                }else {
+                    return null;
+                }
+            }else {
+
+                return  null;
+
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public mUserLogin_demo getEmpcodePresent(String empcode){
+        try{
+            mEmployeeMaster mEmployee = employeeRepository.findByempCode(empcode).orElse(null);
+            if (mEmployee!=null) {
+                String username = mEmployee.getEmailId();
+                mUserLogin_demo passUserLogin = userLoginDemoRepo.findByuserID(username).orElse(null);
+                if (passUserLogin != null) {
+                    if (passUserLogin.getCmeMaster() != null) {
+                        passUserLogin.getCmeMaster().setClientMasterIdCme(null);
+                        passUserLogin.getCmeMaster().setCmemodulesMaster(null);
+                        return passUserLogin;
+                    } else if (passUserLogin.getEmp_Id() != null) {
+                        passUserLogin.getEmp_Id().setModulesMaster_id(null);
+                        passUserLogin.getEmp_Id().setRoleMaster_id(null);
+                        return passUserLogin;
+                    } else {
+                        return null;
+                    }
+                } else {
+
+                    return null;
+
+                }
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public mUserLogin_demo getClientcodePresent(Integer empcode){
+        try{
+            mClientCMEMaster cmeById = clientcmeService.getCmeById(empcode);
+            if (cmeById!=null) {
+                String username = cmeById.getCmeemailId();
+                mUserLogin_demo passUserLogin = userLoginDemoRepo.findByuserID(username).orElse(null);
+                if (passUserLogin != null) {
+                    if (passUserLogin.getCmeMaster() != null) {
+                        passUserLogin.getCmeMaster().setClientMasterIdCme(null);
+                        passUserLogin.getCmeMaster().setCmemodulesMaster(null);
+                        return passUserLogin;
+                    } else if (passUserLogin.getEmp_Id() != null) {
+                        passUserLogin.getEmp_Id().setModulesMaster_id(null);
+                        passUserLogin.getEmp_Id().setRoleMaster_id(null);
+                        return passUserLogin;
+                    } else {
+                        return null;
+                    }
+                } else {
+
+                    return null;
+
+                }
+            }else{
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public List<mEmployeeMaster> getAllEmployees() {
-
+        try{
 
         List<mEmployeeMaster> AllEmployee = employeeRepository.findAll();
 
@@ -123,12 +309,16 @@ private UserLogin_demoRepo userLoginDemoRepo;
         }else{
             return null;
         }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
 
     public mEmployeeMaster getEmployeeById(int empId) {
-        mEmployeeMaster checked = employeeRepository.findById(empId).orElse(null);
+        try{
+            mEmployeeMaster checked = employeeRepository.findById(empId).orElse(null);
         mEmployeeMaster fitnew =new mEmployeeMaster();
         if(checked!=null){
             fitnew.setEmpId(checked.getEmpId());
@@ -171,12 +361,17 @@ private UserLogin_demoRepo userLoginDemoRepo;
         }else{
             return null;
         }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
 
     }
 
      public mEmployeeMaster getByempCode(String empCode) {
-        mEmployeeMaster checked = employeeRepository.findByempCode(empCode).orElse(null);
+        try{
+            mEmployeeMaster checked = employeeRepository.findByempCode(empCode).orElse(null);
         mEmployeeMaster fitnew =new mEmployeeMaster();
         if(checked!=null){
             fitnew.setEmpId(checked.getEmpId());
@@ -218,6 +413,9 @@ private UserLogin_demoRepo userLoginDemoRepo;
             return fitnew;
         }else{
             return null;
+        }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
 
@@ -225,6 +423,7 @@ private UserLogin_demoRepo userLoginDemoRepo;
 
 
  public List<mEmployeeMaster> getByempName(String empName) {
+
      List<mEmployeeMaster> AllEmployee = employeeRepository.findByempName(empName).orElse(null);
 
      if(AllEmployee!=null){
