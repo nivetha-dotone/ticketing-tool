@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Master</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .profile-details {
+            text-align: right;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-right: 1%;
+            margin-left: 223px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 5.5%;
+        }
+
+        .main-content.collapsed {
+            margin-left: 6%;
+            margin-right: 6%;
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex: 1;
+        }
+
+        .tab.active {
+            background-color: #003366;
+            color: white;
+        }
+
+        /* Content Styles */
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #003366;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #002244;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f2fff5; /* Hover effect */
+        }
+
+
+        /* Search Box Styles */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.success {
+            background-color: #28a745;
+        }
+
+        .toast.error {
+            background-color: #dc3545;
+        }
+
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+        /* New styles for search options */
+        .search-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .search-option {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-option h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #003366;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-form select,
+        .search-form input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="adminDashboard">Dashboard</a></li>
+            <li class="active"><a href="adminmaster">Masters</a></li>
+            <li><a href="adminticketCr">Create Ticket</a></li>
+            <li><a href="admintAlltickets">Tickets</a></li>
+            <li><a href="admintReports">Reports</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <h2>Module Master</h2>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('view')">View Master</button>
+            <button class="tab" onclick="showTab('add')">Add Master</button>
+            <button class="tab" onclick="showTab('update')">Update Master</button>
+        </div>
+
+        <div id="view" class="tab-content active">
+            <button class="btn" onclick="fetchAllEntries()">View All Entries</button>
+            <button class="btn" onclick="showTab('find')">Find by</button>
+
+            <div class="table-container">
+                <table id="viewEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Module Code</th>
+                            <th>Is Active</th>
+                            <th>Business Code</th>
+                            <th>Business Name</th>
+                            <th>Business Active</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="find" class="tab-content">
+            <div class="search-options">
+                <div class="search-option">
+                    <h3>Find by Business Entity</h3>
+                    <div class="search-form">
+                        <select id="searchCompanyId" required>
+                            <option value="">Select Business Entity</option>
+                        </select>
+                        <button class="btn" onclick="findByCompany()">Find</button>
+                    </div>
+                </div>
+                <div class="search-option">
+                    <h3>Find by Module Name</h3>
+                        <div class="search-form">
+                            <input type="text" id="searchModuleCode" placeholder="Enter Module Name">
+                            <button class="btn" onclick="findByModuleCode()">Find</button>
+                        </div>
+                       
+                    
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="findEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Module Code</th>
+                            <th>Is Active</th>
+                            <th>Company Code</th>
+                            <th>Company Name</th>
+                            <th>Company Active</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="add" class="tab-content">
+            <form id="addForm" onsubmit="addEntry(event)">
+                <div class="form-group">
+                    <label for="companyId">Business Entity</label>
+                    <select id="companyId" required>
+                        <option value="">Select Company</option>
+                    </select>
+                </div>
+                    <div class="form-group">
+                    <label for="modcode">Module Code</label>
+                    <input type="text" id="modcode" placeholder="Enter Module Code (e.g. Advance Timekeeping)" required oninput="formatTextmodcode()" >
+               
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isactive" checked>
+                        Is Active
+                    </label>
+                </div>
+                <button type="submit" class="btn">Add Module</button>
+            </form>
+        </div>
+
+        <div id="update" class="tab-content">
+            <!-- <div class="search-box">
+                <input type="text" id="updateSearchModuleCode" placeholder="Enter Module Code to update">
+                <button class="btn" onclick="findForUpdate()">Find</button>
+            </div>
+            <form id="updateForm" onsubmit="updateEntry(event)" style="display: none;">
+                <div class="form-group">
+                    <label for="updateModcode">Module Code</label>
+                    <input type="text" id="updateModcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateCompanyId">Company</label>
+                    <select id="updateCompanyId" required>
+                        <option value="">Select Company</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="updateIsactive">
+                        Is Active
+                    </label>
+                </div>
+                <button type="submit" class="btn">Update Module</button>
+            </form> -->
+            <h4>This function is currently in Devlopment phase</h4>
+        </div>
+    </main>
+
+<!-- Session Expiry Modal -->
+<div id="sessionModal" class="modal">
+    <div class="modal-content">
+        <h3>Session Expired</h3>
+        <p>Your session has expired. Please login again to continue.</p>
+        <div class="modal-buttons">
+            <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+        </div>
+    </div>
+</div>
+    <div id="toast" class="toast"></div>
+
+    <footer>
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+
+        
+               // Check authentication on page load
+               document.addEventListener('DOMContentLoaded', function() {
+                checkAuthentication();
+                loadUserProfile();
+                fetchAllEntries();
+                fetchCompanies();
+               // Check token expiration immediately
+        checkTokenExpiration();
+        
+        // Set up token expiration check every 30 seconds
+        setInterval(checkTokenExpiration, 30000);
+    });
+    function isTokenExpired() {
+        const tokenExpiry = localStorage.getItem('tokenExpiry');
+        
+        if (!tokenExpiry) {
+            return true; // If there's no expiry time stored, assume expired
+        }
+    
+        const expiryTime = Number(tokenExpiry); // Convert to number safely
+        
+        if (isNaN(expiryTime)) {
+            console.warn("Invalid token expiry value in localStorage.");
+            return true; // Treat invalid values as expired
+        }
+    
+        console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+    
+        return Date.now() > expiryTime;
+    }
+    
+    
+    // Function to check token expiration
+    function checkTokenExpiration() {
+        if (isTokenExpired()) {
+            showSessionExpiredModal();
+        }
+    }
+    
+    // Function to show session expired modal
+    function showSessionExpiredModal() {
+        const modal = document.getElementById('sessionModal');
+        modal.style.display = 'block';
+        
+        // Prevent closing the modal by clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                // Do nothing - force user to click the login button
+            }
+        };
+    }
+    
+    // Function to redirect to login page
+    function redirectToLogin() {
+        logout();
+        window.location.href = 'Logout';
+    }
+    
+    // Function to check authentication
+    function checkAuthentication() {
+        const token = localStorage.getItem('authToken');
+        if (!token || isTokenExpired()) {
+            redirectToLogin();
+        }
+    }
+    
+    // Function to load user profile
+    function loadUserProfile() {
+        try {
+            const employeeDataStr = localStorage.getItem('employeeData');
+            if (!employeeDataStr) {
+                return;
+            }
+            
+            const employeeData = JSON.parse(employeeDataStr);
+            const profileSection = document.getElementById('profileSection');
+            const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+            
+            profileSection.innerHTML = `
+                <div class="profile-img">${firstLetter}</div>
+                <div class="profile-details">
+                    <p class="profile-name">${employeeData.empName || 'User'}</p>
+                    <p class="admin-id">Admin ID: ${employeeData.empCode || 'N/A'}</p>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    }
+    
+
+             // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('employeeData');
+            
+            // Redirect to login page
+            window.location.href = 'Logout';
+        }
+        
+            // Function to save authentication token with expiry
+    function saveAuthToken(token, expiresIn) {
+        const expiryTime = expiresIn * 10000000;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('tokenExpiry', expiryTime);
+        console.log("Token Expiry Set:", expiryTime);
+    }
+
+        // Helper function to make authenticated API requests
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+            
+            // Set default options
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+        }
+            
+
+
+
+
+
+
+
+
+
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+
+        function formatTextmodcode() {
+            let inputField = document.getElementById("modcode");
+            let text = inputField.value;
+
+            // Remove invalid characters (allow only a-z, A-Z, 0-9, -, _ and spaces)
+            text = text.replace(/[^a-zA-Z0-9\-&_ ]/g, "");
+
+            let words = text.split(/(\s|-|_)/); // Keep spaces, dashes, and underscores
+
+            let formattedText = words.map(word => {
+                if (/\w/.test(word)) { // Ensure it contains at least one letter/number
+                    let firstChar = word.charAt(0).toUpperCase();
+                    let rest = word.slice(1);
+                    return firstChar + rest;
+                }
+                return word; // Preserve spaces, dashes, and underscores
+            }).join("");
+
+            inputField.value = formattedText;
+        }
+
+        document.getElementById("modcode").addEventListener("input", function () {
+            formatTextmodcode();
+        });
+
+        // Show Toast Notification
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+  // Function to fetch companies for dropdown with authentication
+  async function fetchCompanies() {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch('http://103.115.194.81:8080/ticket/Admin/Company/getAllActive', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 200) {
+            const companies = await response.json();
+            
+            // Get all select elements
+            const selectIds = ['companyId', 'updateCompanyId', 'searchCompanyId'];
+            
+            selectIds.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Select Business Entity</option>';
+
+                    if (companies.length === 0) {
+                        select.innerHTML = '<option value="">No Active Companies Found</option>';
+                        select.disabled = true;
+                        return;
+                    }
+
+                    select.disabled = false;
+
+                    // Sort companies alphabetically for better UX
+                    companies.sort((a, b) => a.cmpnm.localeCompare(b.cmpnm));
+
+                    const fragment = document.createDocumentFragment();
+
+                    companies.forEach(company => {
+                        if (company.isactive) { 
+                            const option = document.createElement('option');
+                            option.value = company.cmpid;
+                            option.textContent = `${company.cmpnm} (${company.cmpcode})`;
+                            fragment.appendChild(option);
+                        }
+                    });
+
+                    select.appendChild(fragment);
+                }
+            });
+
+        } else {
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                checkTokenExpiration();
+                showSessionExpiredModal();
+            }
+            throw new Error(`Failed to fetch companies: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Error fetching companies:", error);
+
+        // Display error in UI
+        document.querySelectorAll('#companyId, #updateCompanyId, #searchCompanyId').forEach(select => {
+            select.innerHTML = '<option value="">Error Loading Companies</option>';
+            select.disabled = true;
+        });
+
+        showToast('Failed to fetch companies', 'error');
+    }
+}
+
+
+        // Render Entry
+        function renderEntry(entry, tableId) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.modId}</td>
+                <td>${entry.modcode}</td>
+                <td>${entry.isactive ? 'Yes' : 'No'}</td>
+                <td>${entry.companyMaster.cmpcode}</td>
+                <td>${entry.companyMaster.cmpnm}</td>
+                <td>${entry.companyMaster.isactive ? 'Yes' : 'No'}</td>
+            `;
+            tbody.appendChild(row);
+        }
+       // Function to fetch entries with authentication
+async function fetchEntries() {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            showToast('Authentication required', 'error');
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch('http://103.115.194.81:8080/ticket/Admin/ModulesMaster/allMaster', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Check response status
+        if (response.status === 200) {
+            const data = await response.json();
+        const tbody = document.querySelector('#viewEntryTable tbody');
+        tbody.innerHTML = '';  // Clear existing entries
+
+        // Render each entry into the table
+        data.forEach(entry => renderEntry(entry, 'viewEntryTable'));
+
+        showToast('Entries fetched successfully', 'success');
+        }else{
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                checkTokenExpiration();
+                showSessionExpiredModal();
+            }
+            throw new Error(`Failed to fetch entries: ${response.status}`);
+       
+           }
+
+      
+    } catch (error) {
+        console.error('Error fetching entries:', error);
+        showToast('Failed to fetch entries', 'error');
+        
+        // Check if the error is related to authentication
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showSessionExpiredModal();
+        }
+    }
+}
+
+        
+        // Fetch All Entries
+     // Fetch all entries with authentication
+async function fetchAllEntries() {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch('http://103.115.194.81:8080/ticket/Admin/ModulesMaster/allMaster', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 200) {
+            const data = await response.json();
+        const tbody = document.querySelector('#viewEntryTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(entry => renderEntry(entry, 'viewEntryTable'));
+
+        showToast('Entries fetched successfully', 'success');
+        }else {
+            if (response.status === 401 || response.status === 403 || response.status === 500) 
+            checkTokenExpiration();
+            showSessionExpiredModal();
+            throw new Error('Failed to fetch entries');
+        }
+
+      
+    } catch (error) {
+        showToast('Failed to fetch entries', 'error');
+    }
+}
+
+// Find Entry by Module Name
+async function findByModuleCode() {
+    const moduleName = document.getElementById('searchModuleCode').value;
+    if (!moduleName) {
+        showToast('Please enter a module name', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+
+    try {
+        const response = await fetch(`http://103.115.194.81:8080/ticket/Admin/ModulesMaster/findbyModuleName/${moduleName}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Module not found');
+        
+        const data = await response.json();
+        const tbody = document.querySelector('#findEntryTable tbody');
+        tbody.innerHTML = '';
+
+        if (data && data.modId) {
+            renderEntry(data, 'findEntryTable');
+            showToast('Module found successfully', 'success');
+        } else {
+            showToast('No module found with this name', 'error');
+        }
+    } catch (error) {
+        showToast('No module found with this name', 'error');
+        document.querySelector('#findEntryTable tbody').innerHTML = '';
+    }
+}
+
+// Add New Entry with authentication
+async function addEntry(event) {
+    event.preventDefault();
+    
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    const newEntry = {
+        modcode: document.getElementById('modcode').value,
+        companyMaster: { cmpid: document.getElementById('companyId').value },
+        isactive: document.getElementById('isactive').checked
+    };
+
+    try {
+        const response = await fetch('http://103.115.194.81:8080/ticket/Admin/ModulesMaster/Addmaster', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(newEntry)
+        });
+
+        if (!response.ok) throw new Error('Failed to add module');
+
+        showToast('Module added successfully', 'success');
+        document.getElementById('addForm').reset();
+        fetchAllEntries();
+    } catch (error) {
+        showToast('Failed to add module', 'error');
+    }
+}
+
+// Find Entry for Update with authentication
+async function findForUpdate() {
+    const moduleCode = document.getElementById('updateSearchModuleCode').value;
+    if (!moduleCode) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch(`http://103.115.194.81:8080/ticket/ModulesMaster/findbyModuleCode/${moduleCode}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Module not found');
+
+        const data = await response.json();
+        document.getElementById('updateModcode').value = data.modcode;
+        document.getElementById('updateIsactive').checked = data.isactive;
+        document.getElementById('updateCompanyId').value = data.companyMaster.cmpid;
+        
+        document.getElementById('updateForm').style.display = 'block';
+        showToast('Entry found', 'success');
+    } catch (error) {
+        showToast('Entry not found', 'error');
+        document.getElementById('updateForm').style.display = 'none';
+    }
+}
+
+// Update Entry with authentication
+async function updateEntry(event) {
+    event.preventDefault();
+
+    const moduleCode = document.getElementById('updateSearchModuleCode').value;
+    if (!moduleCode) {
+        showToast('Module Code is required', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    const updatedEntry = {
+        modcode: document.getElementById('updateModcode').value,
+        isactive: document.getElementById('updateIsactive').checked,
+        companyMaster: { cmpid: document.getElementById('updateCompanyId').value }
+    };
+
+    try {
+        const response = await fetch(`http://103.115.194.81:8080/ticket/ModulesMaster/updatebyModuleCode/${moduleCode}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updatedEntry)
+        });
+
+        if (!response.ok) throw new Error('Failed to update module');
+
+        showToast('Module updated successfully', 'success');
+        document.getElementById('updateForm').reset();
+        document.getElementById('updateForm').style.display = 'none';
+        document.getElementById('updateSearchModuleCode').value = '';
+        fetchAllEntries();
+    } catch (error) {
+        showToast('Failed to update module', 'error');
+    }
+}
+
+// Find Modules by Company with authentication
+async function findByCompany() {
+    const companyId = document.getElementById('searchCompanyId').value;
+    const tbody = document.querySelector('#findEntryTable tbody');
+
+    if (!companyId) {
+        showToast('Please select a Business Entity', 'error');
+        tbody.innerHTML = '';
+        return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch(`http://103.115.194.81:8080/ticket/Admin/ModulesMaster/GetAllModulesbyCmpID/${companyId}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch modules');
+
+        const data = await response.json();
+        tbody.innerHTML = '';
+
+        if (Array.isArray(data) && data.length > 0) {
+            data.forEach(entry => renderEntry(entry, 'findEntryTable'));
+            showToast(`Found ${data.length} modules`, 'success');
+        } else {
+            showToast('No modules found for this company', 'error');
+        }
+    } catch (error) {
+        console.error('Error finding modules:', error);
+        showToast('Failed to fetch modules', 'error');
+        tbody.innerHTML = '';
+    }
+}
+
+        // Initial load
+        fetchAllEntries();
+        fetchCompanies();
+
+
+        
+    </script>
+</body>
+</html>
+

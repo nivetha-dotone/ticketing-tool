@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .header-main{
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+        }
+        header img {
+            height: 50px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #f4f4f4;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+        }
+        main {
+            margin-left: 75px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        main.collapsed {
+            margin-left: 0;
+        }
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .container h2 {
+            text-align: center;
+        }
+        .container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .container form input {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .container form button {
+            margin: 10px;
+            padding: 10px;
+            background-color: #003366;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .container form button:hover {
+            background-color: #0055aa;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+        }
+        .header-left img {
+            height: 50px;
+            padding-left: 55%;
+        }
+
+        .header-center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+
+    </style>
+</head>
+<body>
+<header class="header-main">
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="header-left">
+        <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+    </div>
+    <div class="sidebar">
+        <ul>
+            <li ><a href="adminDashboard">Dashboard</a></li>
+            <li ><a href="adminmaster">Masters</a></li>
+            <li><a href="adminticketCr">Create Ticket</a></li>
+            <li><a href="admintAlltickets">Tickets</a></li>
+            <li class="active"><a href="admintReports">Reports</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+    <div class="header-center">
+        <h1>TRACK</h1>
+    </div>
+</header>
+<main class="collapsed">
+    <div class="container">
+        <h2>Reports</h2>
+        <form action="#" method="GET">
+            <button type="submit">Employee Reports</button>
+        </form>
+        <form action="#" method="GET">
+            <button type="submit">Pending Tikcets</button>
+        </form>
+        <form action="#" method="GET">
+            <button type="submit">Resolved Ticket</button>
+        </form>
+        <!-- <form action="#" method="GET">
+            <button type="submit"></button>
+        </form> -->
+    </div>
+</main>
+
+<footer>
+    &copy; 2025 DOT 1. All Rights Reserved.
+</footer>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const main = document.querySelector('main');
+        sidebar.classList.toggle('hidden');
+        main.classList.toggle('collapsed');
+    }
+</script>
+
+</body>
+</html>

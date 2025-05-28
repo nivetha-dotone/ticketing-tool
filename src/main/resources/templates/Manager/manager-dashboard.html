@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+        
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+        
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .profile-details {
+            text-align: right;
+        }
+        
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 250px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 100px;
+            margin-bottom: 60px;
+        }
+
+        main.collapsed {
+            margin-left: 0;
+        }
+
+        /* Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-card-title {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .stat-card-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #003366;
+        }
+
+        .stat-card-description {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-card a {
+            color: #003366;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .stat-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Status-specific colors */
+        .new-card {
+            border-left: 4px solid #007bff;
+        }
+        
+        .in-progress-card {
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .on-hold-card {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .resolved-card {
+            border-left: 4px solid #28a745;
+        }
+        
+        .closed-card {
+            border-left: 4px solid #343a40;
+        }
+        
+        .cancel-card {
+            border-left: 4px solid #6c757d;
+        }
+        
+        .pending-card {
+            border-left: 4px solid #dc3545;
+        }
+
+        .unassigned-card {
+            border-left: 4px solid #e83e8c;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .filter-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filter-group select, 
+        .filter-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .apply-btn {
+            background-color: #003366;
+            color: white;
+        }
+
+        .apply-btn:hover {
+            background-color: #002244;
+        }
+
+        .reset-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 51, 102, 0.3);
+            border-radius: 50%;
+            border-top-color: #003366;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error message */
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Footer Styles */
+        .footer-main {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+        
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Recent activity section */
+        .recent-activity {
+            margin-top: 30px;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .activity-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .view-all {
+            color: #003366;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .activity-list {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .activity-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e6f2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #003366;
+            font-size: 18px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Password Update Modal Styles */
+        #passwordUpdateModal {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        
+        .password-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .password-modal-header {
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .password-modal-header h3 {
+            margin: 0;
+            color: #003366;
+            font-size: 20px;
+        }
+        
+        .close-password-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .close-password-modal:hover {
+            color: #000;
+        }
+        
+        .password-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .password-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .password-input-wrapper {
+            position: relative;
+        }
+        
+        .password-input-wrapper input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 40px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .toggle-password-visibility {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .password-requirements {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .requirement {
+            margin-bottom: 5px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        
+        .requirement.valid {
+            color: #28a745;
+        }
+        
+        .requirement-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .update-password-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .update-password-btn:hover {
+            background-color: #004a8f;
+        }
+        
+        .update-password-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .password-error-message {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .password-success-message {
+            color: #28a745;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-main {
+                padding: 15px 10px;
+            }
+
+            .header-left img {
+                padding-left: 20%;
+            }
+
+            .header-center {
+                padding-left: 20px;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .sidebar {
+                transform: translateX(-250px);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+            
+            .password-modal-content {
+                width: 90%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li class="active"><a href="managerDashboard">Manager Dashboard</a></li>
+            <li ><a href="managerAllt">View Ticket</a></li>
+            <li ><a href="managermytikct">My Tickets</a></li>
+            <li><a href="managertktCreation">New Ticket</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <h2>Manager Dashboard</h2>
+        
+        <div class="filter-section">
+            <h3>Filter Tickets</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="moduleSelect">Module:</label>
+                    <select id="moduleSelect" onchange="handleModuleChange()">
+                        <option value="">Loading modules...</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="typeSelect">Ticket Type:</label>
+                    <select id="typeSelect">
+                        <option value="">All Types</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="levelSelect">Ticket Level:</label>
+                    <select id="levelSelect">
+                        <option value="">All Levels</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="prioritySelect">Priority:</label>
+                    <select id="prioritySelect">
+                        <option value="">All Priorities</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="statusSelect">Status:</label>
+                    <select id="statusSelect">
+                        <option value="">All Statuses</option>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="assignmentSelect">Assignment:</label>
+                    <select id="assignmentSelect">
+                        <option value="">All Tickets</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="unassigned">Unassigned</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn apply-btn" onclick="applyFilters()">Apply Filters</button>
+                <button class="filter-btn reset-btn" onclick="resetFilters()">Reset</button>
+            </div>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">All Tickets</span>
+                </div>
+                <div class="stat-card-number" id="totalTickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Total tickets in your company</div>
+                <a href="managerAllt">View all tickets</a>
+            </div>
+            
+            <div class="stat-card unassigned-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Unassigned Tickets</span>
+                </div>
+                <div class="stat-card-number" id="unassigned-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Tickets not assigned to any consultant</div>
+                <a href="managerAllt">View unassigned tickets</a>
+            </div>
+            
+            <div class="stat-card new-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">New Tickets</span>
+                </div>
+                <div class="stat-card-number" id="new-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Recently created tickets</div>
+                <a href="managerAllt">View new tickets</a>
+            </div>
+            
+            <div class="stat-card in-progress-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">In Progress</span>
+                </div>
+                <div class="stat-card-number" id="in-progress-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Tickets currently being worked on</div>
+                <a href="managerAllt">View in-progress tickets</a>
+            </div>
+            
+            <div class="stat-card on-hold-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">On Hold</span>
+                </div>
+                <div class="stat-card-number" id="on-hold-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Tickets temporarily paused</div>
+                <a href="managerAllt">View on-hold tickets</a>
+            </div>
+            
+            <div class="stat-card resolved-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Resolved</span>
+                </div>
+                <div class="stat-card-number" id="resolved-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Successfully resolved tickets</div>
+                <a href="managerAllt">View resolved tickets</a>
+            </div>
+            
+            <div class="stat-card closed-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Closed</span>
+                </div>
+                <div class="stat-card-number" id="closed-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Permanently closed tickets</div>
+                <a href="managerAllt">View closed tickets</a>
+            </div>
+            
+            <div class="stat-card cancel-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Cancelled</span>
+                </div>
+                <div class="stat-card-number" id="cancel-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Tickets that were cancelled</div>
+                <a href="managerAllt">View cancelled tickets</a>
+            </div>
+            
+            <div class="stat-card pending-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">Pending</span>
+                </div>
+                <div class="stat-card-number" id="pending-tickets">
+                    <span class="loading"></span>
+                </div>
+                <div class="stat-card-description">Tickets awaiting action</div>
+                <a href="managerAllt">View pending tickets</a>
+            </div>
+        </div>
+        
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h3>Recent Activity</h3>
+                <a href="managerAllt" class="view-all">View All</a>
+            </div>
+            <div class="activity-list" id="activity-list">
+                <!-- Activity items will be loaded here -->
+                <div class="activity-item">
+                    <div class="activity-icon">📋</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Loading recent activities...</div>
+                        <div class="activity-time"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Session Expiry Modal -->
+    <div id="sessionModal" class="modal">
+        <div class="modal-content">
+            <h3>Session Expired</h3>
+            <p>Your session has expired. Please login again to continue.</p>
+            <div class="modal-buttons">
+                <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Update Modal -->
+    <div id="passwordUpdateModal" class="modal">
+        <div class="password-modal-content">
+            <span class="close-password-modal" onclick="closePasswordModal()">&times;</span>
+            <div class="password-modal-header">
+                <h3>Update Your Password</h3>
+                <p>Your password needs to be updated for security reasons.</p>
+            </div>
+            
+            <div id="passwordUpdateForm">
+                <div class="password-form-group">
+                    <label for="newPassword">New Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                        <span class="toggle-password-visibility" onclick="togglePasswordVisibility('newPassword')">👁</span>
+                    </div>
+                </div>
+                
+                <div class="password-form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                        <span class="toggle-password-visibility" onclick="togglePasswordVisibility('confirmPassword')">👁</span>
+                    </div>
+                </div>
+                
+                <div class="password-requirements">
+                    <div class="requirement" id="req-length">
+                        <span class="requirement-icon">○</span> Minimum 8 characters
+                    </div>
+                    <div class="requirement" id="req-capital">
+                        <span class="requirement-icon">○</span> At least one capital letter
+                    </div>
+                    <div class="requirement" id="req-special">
+                        <span class="requirement-icon">○</span> One special character (@, $, #, &)
+                    </div>
+                    <div class="requirement" id="req-numbers">
+                        <span class="requirement-icon">○</span> At least three numbers
+                    </div>
+                    <div class="requirement" id="req-match">
+                        <span class="requirement-icon">○</span> Passwords match
+                    </div>
+                </div>
+                
+                <div id="passwordErrorMessage" class="password-error-message"></div>
+                <div id="passwordSuccessMessage" class="password-success-message"></div>
+                
+                <button id="updatePasswordBtn" class="update-password-btn" disabled onclick="updatePassword()">Update Password</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-main">
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+        // Global variables
+        let allTickets = [];
+        let modules = [];
+        let ticketTypes = new Set();
+        let ticketLevels = new Set();
+        let ticketPriorities = new Set();
+        let ticketStatuses = new Set();
+        let selectedModuleId = '';
+        let companyName = '';
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+            
+            // Get company name from localStorage
+            const employeeDataStr = localStorage.getItem('employeeData');
+            if (employeeDataStr) {
+                const employeeData = JSON.parse(employeeDataStr);
+                companyName = employeeData.companyName;
+                
+                // Fetch data
+                fetchTotalTickets();
+                fetchModules();
+            }
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+        });
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('main');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true; // If there's no expiry time stored, assume expired
+            }
+
+            const expiryTime = Number(tokenExpiry); // Convert to number safely
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true; // Treat invalid values as expired
+            }
+
+            console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+
+            return Date.now() > expiryTime;
+        }
+
+        // Function to check token expiration
+        function checkTokenExpiration() {
+            if (isTokenExpired()) {
+                showSessionExpiredModal();
+            }
+        }
+
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.style.display = 'block';
+            
+            // Prevent closing the modal by clicking outside
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    // Do nothing - force user to click the login button
+                }
+            };
+        }
+
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = 'Logout';
+        }
+
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const employeeDataStr = localStorage.getItem('employeeData');
+                const userPassActive = localStorage.getItem('userPassActive');
+                
+                if (!employeeDataStr) {
+                    console.error('No employee data found in localStorage');
+                    return;
+                }
+                
+                const employeeData = JSON.parse(employeeDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of employee name for avatar
+                const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'M';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${employeeData.empName || 'Manager'}</p>
+                        <p class="admin-id">Manager ID: ${employeeData.empCode || 'N/A'}</p>
+                        <p class="admin-id">Company: ${employeeData.companyName || 'N/A'}</p>
+                    </div>
+                `;
+                
+                // Check if password needs to be updated
+                checkPasswordUpdateRequired(userPassActive);
+                
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Function to check if password update is required
+        function checkPasswordUpdateRequired(userPassActive) {
+            // Check if userPassActive is false (as string or boolean)
+            if (userPassActive === "false" || userPassActive === false) {
+                // Show password update modal
+                showPasswordUpdateModal();
+            }
+        }
+        
+        // Function to show password update modal
+        function showPasswordUpdateModal() {
+            const modal = document.getElementById('passwordUpdateModal');
+            modal.style.display = 'block';
+            
+            // Set up event listeners for password validation
+            setupPasswordValidation();
+            
+            // Close modal when clicking outside (but not on the modal content)
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    closePasswordModal();
+                }
+            };
+        }
+        
+        // Function to close password update modal
+        function closePasswordModal() {
+            document.getElementById('passwordUpdateModal').style.display = 'none';
+        }
+        
+        // Function to toggle password visibility
+        function togglePasswordVisibility(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+        }
+        
+        // Function to set up password validation
+        function setupPasswordValidation() {
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const updateButton = document.getElementById('updatePasswordBtn');
+            
+            // Add input event listeners to both password fields
+            newPasswordInput.addEventListener('input', validatePassword);
+            confirmPasswordInput.addEventListener('input', validatePassword);
+            
+            function validatePassword() {
+                const password = newPasswordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                // Reset all requirements
+                document.querySelectorAll('.requirement').forEach(req => {
+                    req.classList.remove('valid');
+                    req.querySelector('.requirement-icon').textContent = '○';
+                });
+                
+                // Validate length
+                if (password.length >= 8) {
+                    document.getElementById('req-length').classList.add('valid');
+                    document.getElementById('req-length').querySelector('.requirement-icon').textContent = '✓';
+                }
+                
+                // Validate capital letter
+                if (/[A-Z]/.test(password)) {
+                    document.getElementById('req-capital').classList.add('valid');
+                    document.getElementById('req-capital').querySelector('.requirement-icon').textContent = '✓';
+                }
+                
+                // Validate special character
+                if (/[@$#&]/.test(password)) {
+                    document.getElementById('req-special').classList.add('valid');
+                    document.getElementById('req-special').querySelector('.requirement-icon').textContent = '✓';
+                }
+                
+                // Validate numbers (at least 3)
+                const numberCount = (password.match(/[0-9]/g) || []).length;
+                if (numberCount >= 3) {
+                    document.getElementById('req-numbers').classList.add('valid');
+                    document.getElementById('req-numbers').querySelector('.requirement-icon').textContent = '✓';
+                }
+                
+                // Validate passwords match
+                if (password && confirmPassword && password === confirmPassword) {
+                    document.getElementById('req-match').classList.add('valid');
+                    document.getElementById('req-match').querySelector('.requirement-icon').textContent = '✓';
+                }
+                
+                // Enable/disable update button based on all requirements being met
+                const allRequirementsMet = 
+                    password.length >= 8 && 
+                    /[A-Z]/.test(password) && 
+                    /[@$#&]/.test(password) && 
+                    numberCount >= 3 && 
+                    password === confirmPassword;
+                
+                updateButton.disabled = !allRequirementsMet;
+            }
+        }
+        
+        // Function to update password
+        async function updatePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const errorMessage = document.getElementById('passwordErrorMessage');
+            const successMessage = document.getElementById('passwordSuccessMessage');
+            const updateButton = document.getElementById('updatePasswordBtn');
+            
+            // Hide any previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Disable button and show loading state
+            updateButton.disabled = true;
+            updateButton.textContent = 'Updating...';
+            
+            try {
+                // Get user ID from localStorage
+                const userID = localStorage.getItem('userID');
+                if (!userID) {
+                    throw new Error('User ID not found');
+                }
+                
+                // Get auth token
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('Authentication token not found');
+                }
+                
+                // Make API call to update password
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Manager/updatePassword/${userID}/${newPassword}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update password');
+                }
+                
+                // Show success message
+                successMessage.textContent = 'Password updated successfully! You will be redirected to login again.';
+                successMessage.style.display = 'block';
+                
+                // Reset form
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                // Redirect to login after a delay
+                setTimeout(() => {
+                    logout();
+                    window.location.href = 'Logout';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error updating password:', error);
+                errorMessage.textContent = error.message || 'Failed to update password. Please try again.';
+                errorMessage.style.display = 'block';
+                
+                // Re-enable button
+                updateButton.disabled = false;
+                updateButton.textContent = 'Update Password';
+            }
+        }
+
+        // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('employeeData');
+            localStorage.removeItem('userPassActive');
+            
+            // Redirect to login page
+            window.location.href = 'Logout';
+        }
+
+        // Function to save authentication token with expiry
+        function saveAuthToken(token, expiresIn) {
+            const expiryTime = expiresIn * 10000000;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('tokenExpiry', expiryTime);
+            console.log("Token Expiry Set:", expiryTime);
+        }
+
+        // Fetch total tickets for the company
+        async function fetchTotalTickets() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!companyName) {
+                    throw new Error('No company name found');
+                }
+                
+                console.log(`Fetching tickets for company: ${companyName}`);
+                
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Manager/getTicketCountMgr/${companyName}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error(`Failed to fetch tickets: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Total tickets data:', data);
+                
+                // Update the total tickets count
+                document.getElementById('totalTickets').textContent = typeof data === 'number' ? data : data.count || 0;
+                
+                // Now fetch all tickets to get detailed information
+                fetchAllTickets();
+                
+            } catch (error) {
+                console.error('Error fetching total tickets:', error);
+                document.getElementById('totalTickets').innerHTML = '<span class="error-message">Error loading data</span>';
+            }
+        }
+        
+        // Fetch all modules for the company
+        async function fetchModules() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!companyName) {
+                    throw new Error('No company name found');
+                }
+                
+                console.log(`Fetching modules for company: ${companyName}`);
+                
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Manager/GetAllModulesbyCmpName/${companyName}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error(`Failed to fetch modules: ${response.status} ${response.statusText}`);
+                }
+                
+                modules = await response.json();
+                console.log('Modules data:', modules);
+                
+                // Populate the module dropdown
+                populateModuleDropdown(modules);
+                
+            } catch (error) {
+                console.error('Error fetching modules:', error);
+                document.getElementById('moduleSelect').innerHTML = '<option value="">Error loading modules</option>';
+            }
+        }
+        
+        // Populate module dropdown
+        function populateModuleDropdown(modules) {
+            const moduleSelect = document.getElementById('moduleSelect');
+            
+            if (!modules || modules.length === 0) {
+                moduleSelect.innerHTML = '<option value="">No modules available</option>';
+                return;
+            }
+            
+            let options = '<option value="">Select a Module</option>';
+            
+            modules.forEach(module => {
+                options += `<option value="${module.modId}">${module.modcode} - ${module.modDescription || ''}</option>`;
+            });
+            
+            moduleSelect.innerHTML = options;
+        }
+        
+        // Handle module change
+        function handleModuleChange() {
+            const moduleSelect = document.getElementById('moduleSelect');
+            selectedModuleId = moduleSelect.value;
+            
+            if (selectedModuleId) {
+                fetchTicketsByModule(selectedModuleId);
+            } else {
+                // If no module is selected, fetch all tickets
+                fetchAllTickets();
+            }
+        }
+        
+        // Fetch tickets by module
+        async function fetchTicketsByModule(moduleId) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                console.log(`Fetching tickets for module ID: ${moduleId}`);
+                
+                // Show loading indicators
+                showLoadingIndicators();
+                
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Manager/getAllTktByModule/${moduleId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error(`Failed to fetch tickets by module: ${response.status} ${response.statusText}`);
+                }
+                
+                allTickets = await response.json();
+                console.log(`Fetched ${allTickets.length} tickets for module ID ${moduleId}`);
+                
+                // Process tickets
+                processTickets(allTickets);
+                
+            } catch (error) {
+                console.error('Error fetching tickets by module:', error);
+                showErrorMessages();
+            }
+        }
+        
+        // Fetch all tickets
+        async function fetchAllTickets() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!companyName) {
+                    throw new Error('No company name found');
+                }
+                
+                console.log(`Fetching all tickets for company: ${companyName}`);
+                
+                // Show loading indicators
+                showLoadingIndicators();
+                
+                // Since there's no direct API to get all tickets, we'll use the total count API
+                // and then process the data we have
+                
+                // For now, we'll simulate having all tickets
+                // In a real implementation, you might need to make multiple API calls
+                
+                // This is a placeholder - in a real implementation, you would fetch actual ticket data
+                const dummyTickets = [];
+                
+                // Process tickets (either real or placeholder)
+                processTickets(dummyTickets);
+                
+            } catch (error) {
+                console.error('Error fetching all tickets:', error);
+                showErrorMessages();
+            }
+        }
+        
+        // Process tickets and update UI
+        function processTickets(tickets) {
+            // Count tickets by status
+            countTicketsByStatus(tickets);
+            
+            // Count unassigned tickets
+            countUnassignedTickets(tickets);
+            
+            // Extract unique values for filters
+            extractFilterValues(tickets);
+            
+            // Populate filter dropdowns
+            populateFilterDropdowns();
+            
+            // Generate recent activities
+            generateRecentActivities(tickets);
+        }
+        
+        // Count tickets by status
+        function countTicketsByStatus(tickets) {
+            // Initialize counters
+            let newCount = 0;
+            let inProgressCount = 0;
+            let onHoldCount = 0;
+            let resolvedCount = 0;
+            let closedCount = 0;
+            let cancelCount = 0;
+            let pendingCount = 0;
+            
+            // Count tickets by status
+            tickets.forEach(ticket => {
+                if (ticket.status && ticket.status.gmDescription) {
+                    switch (ticket.status.gmDescription) {
+                        case 'NEW':
+                            newCount++;
+                            break;
+                        case 'IN-PROGRESS':
+                            inProgressCount++;
+                            break;
+                        case 'ON-HOLD':
+                            onHoldCount++;
+                            break;
+                        case 'RESOLVED':
+                            resolvedCount++;
+                            break;
+                        case 'CLOSED':
+                            closedCount++;
+                            break;
+                        case 'CANCEL':
+                            cancelCount++;
+                            break;
+                        case 'PENDING':
+                            pendingCount++;
+                            break;
+                    }
+                }
+            });
+            
+            // Update the dashboard counters
+            document.getElementById('new-tickets').textContent = newCount;
+            document.getElementById('in-progress-tickets').textContent = inProgressCount;
+            document.getElementById('on-hold-tickets').textContent = onHoldCount;
+            document.getElementById('resolved-tickets').textContent = resolvedCount;
+            document.getElementById('closed-tickets').textContent = closedCount;
+            document.getElementById('cancel-tickets').textContent = cancelCount;
+            document.getElementById('pending-tickets').textContent = pendingCount;
+            
+            console.log('Ticket counts updated:', {
+                new: newCount,
+                inProgress: inProgressCount,
+                onHold: onHoldCount,
+                resolved: resolvedCount,
+                closed: closedCount,
+                cancel: cancelCount,
+                pending: pendingCount
+            });
+        }
+        
+        // Count unassigned tickets
+        function countUnassignedTickets(tickets) {
+            const unassignedCount = tickets.filter(ticket => !ticket.employeeId).length;
+            document.getElementById('unassigned-tickets').textContent = unassignedCount;
+            console.log('Unassigned tickets:', unassignedCount);
+        }
+        
+        // Extract unique values for filters
+        function extractFilterValues(tickets) {
+            // Clear existing sets
+            ticketTypes.clear();
+            ticketLevels.clear();
+            ticketPriorities.clear();
+            ticketStatuses.clear();
+            
+            // Extract unique values using gmDescription instead of gmType
+            tickets.forEach(ticket => {
+                if (ticket.tickettype && ticket.tickettype.gmDescription) {
+                    ticketTypes.add(ticket.tickettype.gmDescription);
+                }
+                
+                if (ticket.ticketlevel && ticket.ticketlevel.gmDescription) {
+                    ticketLevels.add(ticket.ticketlevel.gmDescription);
+                }
+                
+                if (ticket.priority && ticket.priority.gmDescription) {
+                    ticketPriorities.add(ticket.priority.gmDescription);
+                }
+                
+                if (ticket.status && ticket.status.gmDescription) {
+                    ticketStatuses.add(ticket.status.gmDescription);
+                }
+            });
+            
+            console.log('Filter values extracted:', {
+                types: [...ticketTypes],
+                levels: [...ticketLevels],
+                priorities: [...ticketPriorities],
+                statuses: [...ticketStatuses]
+            });
+        }
+        
+        // Populate filter dropdowns
+        function populateFilterDropdowns() {
+            // Populate type dropdown
+            const typeSelect = document.getElementById('typeSelect');
+            let typeOptions = '<option value="">All Types</option>';
+            ticketTypes.forEach(type => {
+                typeOptions += `<option value="${type}">${type}</option>`;
+            });
+            typeSelect.innerHTML = typeOptions;
+            
+            // Populate level dropdown
+            const levelSelect = document.getElementById('levelSelect');
+            let levelOptions = '<option value="">All Levels</option>';
+            ticketLevels.forEach(level => {
+                levelOptions += `<option value="${level}">${level}</option>`;
+            });
+            levelSelect.innerHTML = levelOptions;
+            
+            // Populate priority dropdown
+            const prioritySelect = document.getElementById('prioritySelect');
+            let priorityOptions = '<option value="">All Priorities</option>';
+            ticketPriorities.forEach(priority => {
+                priorityOptions += `<option value="${priority}">${priority}</option>`;
+            });
+            prioritySelect.innerHTML = priorityOptions;
+            
+            // Populate status dropdown
+            const statusSelect = document.getElementById('statusSelect');
+            let statusOptions = '<option value="">All Statuses</option>';
+            ticketStatuses.forEach(status => {
+                statusOptions += `<option value="${status}">${status}</option>`;
+            });
+            statusSelect.innerHTML = statusOptions;
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            const typeValue = document.getElementById('typeSelect').value;
+            const levelValue = document.getElementById('levelSelect').value;
+            const priorityValue = document.getElementById('prioritySelect').value;
+            const statusValue = document.getElementById('statusSelect').value;
+            const assignmentValue = document.getElementById('assignmentSelect').value;
+            
+            console.log('Applying filters:', {
+                type: typeValue,
+                level: levelValue,
+                priority: priorityValue,
+                status: statusValue,
+                assignment: assignmentValue
+            });
+            
+            // Filter tickets using gmDescription instead of gmType
+            let filteredTickets = [...allTickets];
+            
+            if (typeValue) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.tickettype && ticket.tickettype.gmDescription === typeValue
+                );
+            }
+            
+            if (levelValue) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.ticketlevel && ticket.ticketlevel.gmDescription === levelValue
+                );
+            }
+            
+            if (priorityValue) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.priority && ticket.priority.gmDescription === priorityValue
+                );
+            }
+            
+            if (statusValue) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.status && ticket.status.gmDescription === statusValue
+                );
+            }
+            
+            if (assignmentValue === 'assigned') {
+                filteredTickets = filteredTickets.filter(ticket => ticket.employeeId);
+            } else if (assignmentValue === 'unassigned') {
+                filteredTickets = filteredTickets.filter(ticket => !ticket.employeeId);
+            }
+            
+            // Process filtered tickets
+            processTickets(filteredTickets);
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('typeSelect').value = '';
+            document.getElementById('levelSelect').value = '';
+            document.getElementById('prioritySelect').value = '';
+            document.getElementById('statusSelect').value = '';
+            document.getElementById('assignmentSelect').value = '';
+            
+            // If a module is selected, fetch tickets for that module
+            if (selectedModuleId) {
+                fetchTicketsByModule(selectedModuleId);
+            } else {
+                // Otherwise, fetch all tickets
+                fetchAllTickets();
+            }
+        }
+        
+        // Generate recent activities from tickets
+        function generateRecentActivities(tickets) {
+            // Sort tickets by creation date (newest first)
+            const sortedTickets = [...tickets].sort((a, b) => {
+                const dateA = a.createdon ? new Date(formatDateForSorting(a.createdon)) : new Date(0);
+                const dateB = b.createdon ? new Date(formatDateForSorting(b.createdon)) : new Date(0);
+                return dateB - dateA;
+            });
+            
+            // Take the 5 most recent tickets
+            const recentTickets = sortedTickets.slice(0, 5);
+            
+            // Generate activity HTML
+            let activityHTML = '';
+            
+            if (recentTickets.length === 0) {
+                activityHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon">📋</div>
+                        <div class="activity-content">
+                            <div class="activity-title">No recent activities</div>
+                            <div class="activity-time">No tickets found with the current filters</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                recentTickets.forEach(ticket => {
+                    const statusIcon = getStatusIcon(ticket.status?.gmDescription);
+                    const statusColor = getStatusColor(ticket.status?.gmDescription);
+                    const assignedTo = ticket.employeeId ? ticket.employeeId.empName || 'Unknown' : 'Unassigned';
+                    
+                    activityHTML += `
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background-color: ${statusColor}; color: white;">${statusIcon}</div>
+                            <div class="activity-content">
+                                <div class="activity-title">${ticket.ticketcode || 'Unknown Ticket'} - ${ticket.ticketnote || 'No description'}</div>
+                                <div class="activity-time">
+                                    ${formatDateTime(ticket.createdon)} • 
+                                    Status: ${ticket.status?.gmDescription || 'Unknown'} • 
+                                    Assigned to: ${assignedTo}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Update the activity list
+            document.getElementById('activity-list').innerHTML = activityHTML;
+        }
+        
+        // Helper function to get status icon
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'NEW': return '🆕';
+                case 'IN-PROGRESS': return '⚙️';
+                case 'ON-HOLD': return '⏸️';
+                case 'RESOLVED': return '✅';
+                case 'CLOSED': return '🔒';
+                case 'CANCEL': return '❌';
+                case 'PENDING': return '⏳';
+                default: return '📋';
+            }
+        }
+        
+        // Helper function to get status color
+        function getStatusColor(status) {
+            switch (status) {
+                case 'NEW': return '#007bff';
+                case 'IN-PROGRESS': return '#17a2b8';
+                case 'ON-HOLD': return '#ffc107';
+                case 'RESOLVED': return '#28a745';
+                case 'CLOSED': return '#343a40';
+                case 'CANCEL': return '#6c757d';
+                case 'PENDING': return '#dc3545';
+                default: return '#6c757d';
+            }
+        }
+        
+        // Format date for sorting
+        function formatDateForSorting(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            
+            try {
+                // Convert "15-04-2025 T 17:27:57" to "2025-04-15T17:27:57"
+                const cleanedStr = dateTimeStr.replace(/\s*T\s*/, ' '); // Remove the "T" with optional spaces
+                const [datePart, timePart] = cleanedStr.split(' ');
+                const [day, month, year] = datePart.split('-');
+                
+                if (!day || !month || !year || !timePart) return '';
+                
+                return `${year}-${month}-${day}T${timePart}`;
+            } catch (e) {
+                console.error('Error formatting date for sorting:', e);
+                return '';
+            }
+        }
+        
+        // Format date time for display
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return 'N/A';
+        
+            try {
+                // Convert "15-04-2025 T 17:27:57" to "2025-04-15T17:27:57"
+                const cleanedStr = dateTimeStr.replace(/\s*T\s*/, ' '); // Remove the "T" with optional spaces
+                const [datePart, timePart] = cleanedStr.split(' ');
+                const [day, month, year] = datePart.split('-');
+        
+                if (!day || !month || !year || !timePart) return 'N/A';
+        
+                const isoString = `${year}-${month}-${day}T${timePart}`;
+                const date = new Date(isoString);
+        
+                if (isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+        
+                // Extract parts manually
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const hour12 = hours % 12 || 12; // Convert to 12-hour format
+        
+                // Pad minutes and hours
+                const paddedHour = hour12.toString().padStart(2, '0');
+                const paddedMinutes = minutes.toString().padStart(2, '0');
+        
+                return `${day}/${month}/${year}, ${paddedHour}:${paddedMinutes} ${ampm}`;
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return 'N/A';
+            }
+        }
+        
+        // Show loading indicators
+        function showLoadingIndicators() {
+            document.getElementById('new-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('in-progress-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('on-hold-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('resolved-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('closed-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('cancel-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('pending-tickets').innerHTML = '<span class="loading"></span>';
+            document.getElementById('unassigned-tickets').innerHTML = '<span class="loading"></span>';
+        }
+        
+        // Show error messages
+        function showErrorMessages() {
+            document.getElementById('new-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('in-progress-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('on-hold-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('resolved-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('closed-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('cancel-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('pending-tickets').innerHTML = '<span class="error-message">Error</span>';
+            document.getElementById('unassigned-tickets').innerHTML = '<span class="error-message">Error</span>';
+            
+            document.getElementById('activity-list').innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">❌</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Error loading activities</div>
+                        <div class="activity-time">Please try refreshing the page</div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

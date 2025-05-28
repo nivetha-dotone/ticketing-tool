@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+        header img {
+            height: 50px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-align: center;
+            flex: 1;
+        }
+        *.sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 100px;
+            margin-bottom: 60px;
+        }
+
+        main.collapsed {
+            margin-left: 0;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .dashboard-card h3 {
+            margin: 10px 0;
+            font-size: 24px;
+        }
+        .dashboard-card p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .dashboard-card a {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #003366;
+            font-weight: bold;
+        }
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+        }
+
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+
+        .header-center {
+            flex: 1;
+            padding-left: 116px;
+            text-align: center;
+        }
+
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .profile-details {
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .main-content {
+            margin-right: 1%;
+            margin-left: 223px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 5.5%;
+        }
+        .main-content.collapsed {
+            margin-left: 6%;
+            margin-right: 6%;
+        }
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background-color: #004a8f;
+        }
+
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Password Update Modal Styles */
+        #passwordUpdateModal {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        .password-modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .password-modal-header {
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .password-modal-header h3 {
+            margin: 0;
+            color: #003366;
+            font-size: 20px;
+        }
+
+        .close-password-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .close-password-modal:hover {
+            color: #000;
+        }
+
+        .password-form-group {
+            margin-bottom: 15px;
+        }
+
+        .password-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-input-wrapper input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 40px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .toggle-password-visibility {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .password-requirements {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .requirement {
+            margin-bottom: 5px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .requirement.valid {
+            color: #28a745;
+        }
+
+        .requirement-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .update-password-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .update-password-btn:hover {
+            background-color: #004a8f;
+        }
+
+        .update-password-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .password-error-message {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .password-success-message {
+            color: #28a745;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-main {
+                padding: 15px 10px;
+            }
+
+            .header-left img {
+                padding-left: 20%;
+            }
+
+            .header-center {
+                padding-left: 20px;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 12px;
+            }
+
+            .sidebar {
+                transform: translateX(-250px);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .password-modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header-main">
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="header-left">
+        <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+    </div>
+    
+    <div class="header-center">
+        <h1>TRACK</h1>
+    </div>
+    <div class="header-right" id="profileSection">
+        <!-- Profile content will be dynamically inserted here -->
+    </div>
+</header>
+
+<div class="sidebar">
+    <ul>
+        <li class="active"><a href="adminDashboard">Dashboard</a></li>
+        <li ><a href="adminmaster">Masters</a></li>
+        <li><a href="adminticketCr">Create Ticket</a></li>
+        <li><a href="admintAlltickets">Tickets</a></li>
+        <li><a href="admintReports">Reports</a></li>
+        <li><a href="Logout" onclick="logout()">Log Out</a></li>
+    </ul>
+</div>
+<main class="main-content">
+    <h2>Admin Dashboard</h2>
+    <div class="dashboard">
+        <div class="dashboard-card">
+            <h3>9</h3>
+            <p>All Masters</p>
+            <a href="adminmaster">More info</a>
+        </div>
+        <div class="dashboard-card">
+            <br/>
+            <p>New Ticket</p>
+            <br/>
+            <a href="adminticketCr">More info</a>
+        </div>
+        <div class="dashboard-card">
+            <h3 id="totalTickets">Loading...</h3>
+            <p>All Tickets</p>
+            <a href="admintAlltickets">More info</a>
+        </div>
+        <div class="dashboard-card">
+            <h3>0</h3>
+            <p>In Process Tickets</p>
+            <a href="#">More info</a>
+        </div>
+        <div class="dashboard-card">
+            <h3>0</h3>
+            <p>On Hold Tickets</p>
+            <a href="#">More info</a>
+        </div>
+        <div class="dashboard-card">
+            <h3>0</h3>
+            <p>Resolved Tickets</p>
+            <a href="#">More info</a>
+        </div>
+    </div>
+</main>
+
+<!-- Session Expiry Modal -->
+<div id="sessionModal" class="modal">
+    <div class="modal-content">
+        <h3>Session Expired</h3>
+        <p>Your session has expired. Please login again to continue.</p>
+        <div class="modal-buttons">
+            <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- Password Update Modal -->
+<div id="passwordUpdateModal" class="modal">
+    <div class="password-modal-content">
+        <span class="close-password-modal" onclick="closePasswordModal()">&times;</span>
+        <div class="password-modal-header">
+            <h3>Update Your Password</h3>
+            <p>Your password needs to be updated for security reasons.</p>
+        </div>
+        
+        <div id="passwordUpdateForm">
+            <div class="password-form-group">
+                <label for="newPassword">New Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="newPassword" placeholder="Enter new password">
+                    <span class="toggle-password-visibility" onclick="togglePasswordVisibility('newPassword')">👁</span>
+                </div>
+            </div>
+            
+            <div class="password-form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    <span class="toggle-password-visibility" onclick="togglePasswordVisibility('confirmPassword')">👁</span>
+                </div>
+            </div>
+            
+            <div class="password-requirements">
+                <div class="requirement" id="req-length">
+                    <span class="requirement-icon">○</span> Minimum 8 characters
+                </div>
+                <div class="requirement" id="req-capital">
+                    <span class="requirement-icon">○</span> At least one capital letter
+                </div>
+                <div class="requirement" id="req-special">
+                    <span class="requirement-icon">○</span> One special character (@, $, #, &)
+                </div>
+                <div class="requirement" id="req-numbers">
+                    <span class="requirement-icon">○</span> At least three numbers
+                </div>
+                <div class="requirement" id="req-match">
+                    <span class="requirement-icon">○</span> Passwords match
+                </div>
+            </div>
+            
+            <div id="passwordErrorMessage" class="password-error-message"></div>
+            <div id="passwordSuccessMessage" class="password-success-message"></div>
+            
+            <button id="updatePasswordBtn" class="update-password-btn" disabled onclick="updatePassword()">Update Password</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    &copy; 2025 DOT 1. All Rights Reserved.
+</footer>
+
+<script>
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthentication();
+        loadUserProfile();
+        fetchTotalTickets();
+        
+        // Check token expiration immediately
+        checkTokenExpiration();
+        
+        // Set up token expiration check every 30 seconds
+        setInterval(checkTokenExpiration, 30000);
+    });
+    
+    // Function to check if token is expired
+    function isTokenExpired() {
+        const tokenExpiry = localStorage.getItem('tokenExpiry');
+        
+        if (!tokenExpiry) {
+            return true; // If there's no expiry time stored, assume expired
+        }
+    
+        const expiryTime = Number(tokenExpiry); // Convert to number safely
+        
+        if (isNaN(expiryTime)) {
+            console.warn("Invalid token expiry value in localStorage.");
+            return true; // Treat invalid values as expired
+        }
+    
+        console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+    
+        return Date.now() > expiryTime;
+    }
+    
+    
+    // Function to check token expiration
+    function checkTokenExpiration() {
+        if (isTokenExpired()) {
+            showSessionExpiredModal();
+        }
+    }
+    
+    // Function to show session expired modal
+    function showSessionExpiredModal() {
+        const modal = document.getElementById('sessionModal');
+        modal.style.display = 'block';
+        
+        // Prevent closing the modal by clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                // Do nothing - force user to click the login button
+            }
+        };
+    }
+    
+    // Function to redirect to login page
+    function redirectToLogin() {
+        logout();
+        window.location.href = 'Logout';
+    }
+    
+    // Function to check authentication
+    function checkAuthentication() {
+        const token = localStorage.getItem('authToken');
+        if (!token || isTokenExpired()) {
+            redirectToLogin();
+        }
+    }
+    
+    // Function to load user profile
+    function loadUserProfile() {
+        try {
+            const employeeDataStr = localStorage.getItem('employeeData');
+            const userPassActive = localStorage.getItem('userPassActive');
+            
+            if (!employeeDataStr) {
+                return;
+            }
+            
+            const employeeData = JSON.parse(employeeDataStr);
+            const profileSection = document.getElementById('profileSection');
+            const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+            
+            console.log('userPassActive from localStorage:', userPassActive);
+            console.log('Type of userPassActive:', typeof userPassActive);
+            
+            profileSection.innerHTML = `
+                <div class="profile-img">${firstLetter}</div>
+                <div class="profile-details">
+                    <p class="profile-name">${employeeData.empName || 'User'}</p>
+                    <p class="admin-id">Admin ID: ${employeeData.empCode || 'N/A'}</p>
+                </div>
+            `;
+            
+            // Check if password needs to be updated
+            checkPasswordUpdateRequired(userPassActive);
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    }
+    
+    // Function to check if password update is required
+    function checkPasswordUpdateRequired(userPassActiveStr) {
+        console.log('Checking password update requirement for:', userPassActiveStr);
+        
+        // Check if userPassActive is "false" (as a string from localStorage)
+        if (userPassActiveStr === "false" || userPassActiveStr === false) {
+            console.log('Password update required - showing modal');
+            // Show password update modal
+            showPasswordUpdateModal();
+        } else {
+            console.log('Password update not required');
+        }
+    }
+    
+    // Function to show password update modal
+    function showPasswordUpdateModal() {
+        const modal = document.getElementById('passwordUpdateModal');
+        modal.style.display = 'block';
+        
+        // Set up event listeners for password validation
+        setupPasswordValidation();
+        
+        // Close modal when clicking outside (but not on the modal content)
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                closePasswordModal();
+            }
+        };
+    }
+    
+    // Function to close password update modal
+    function closePasswordModal() {
+        document.getElementById('passwordUpdateModal').style.display = 'none';
+    }
+    
+    // Function to toggle password visibility
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+    }
+    
+    // Function to set up password validation
+    function setupPasswordValidation() {
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const updateButton = document.getElementById('updatePasswordBtn');
+        
+        // Add input event listeners to both password fields
+        newPasswordInput.addEventListener('input', validatePassword);
+        confirmPasswordInput.addEventListener('input', validatePassword);
+        
+        function validatePassword() {
+            const password = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            // Reset all requirements
+            document.querySelectorAll('.requirement').forEach(req => {
+                req.classList.remove('valid');
+                req.querySelector('.requirement-icon').textContent = '○';
+            });
+            
+            // Validate length
+            if (password.length >= 8) {
+                document.getElementById('req-length').classList.add('valid');
+                document.getElementById('req-length').querySelector('.requirement-icon').textContent = '✓';
+            }
+            
+            // Validate capital letter
+            if (/[A-Z]/.test(password)) {
+                document.getElementById('req-capital').classList.add('valid');
+                document.getElementById('req-capital').querySelector('.requirement-icon').textContent = '✓';
+            }
+            
+            // Validate special character
+            if (/[@$#&]/.test(password)) {
+                document.getElementById('req-special').classList.add('valid');
+                document.getElementById('req-special').querySelector('.requirement-icon').textContent = '✓';
+            }
+            
+            // Validate numbers (at least 3)
+            const numberCount = (password.match(/[0-9]/g) || []).length;
+            if (numberCount >= 3) {
+                document.getElementById('req-numbers').classList.add('valid');
+                document.getElementById('req-numbers').querySelector('.requirement-icon').textContent = '✓';
+            }
+            
+            // Validate passwords match
+            if (password && confirmPassword && password === confirmPassword) {
+                document.getElementById('req-match').classList.add('valid');
+                document.getElementById('req-match').querySelector('.requirement-icon').textContent = '✓';
+            }
+            
+            // Enable/disable update button based on all requirements being met
+            const allRequirementsMet = 
+                password.length >= 8 && 
+                /[A-Z]/.test(password) && 
+                /[@$#&]/.test(password) && 
+                numberCount >= 3 && 
+                password === confirmPassword;
+            
+            updateButton.disabled = !allRequirementsMet;
+        }
+    }
+    
+    // Function to update password
+    async function updatePassword() {
+        const newPassword = document.getElementById('newPassword').value;
+        const errorMessage = document.getElementById('passwordErrorMessage');
+        const successMessage = document.getElementById('passwordSuccessMessage');
+        const updateButton = document.getElementById('updatePasswordBtn');
+        
+        // Hide any previous messages
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+        
+        // Disable button and show loading state
+        updateButton.disabled = true;
+        updateButton.textContent = 'Updating...';
+        
+        try {
+            // Get user ID from localStorage
+            const userID = localStorage.getItem('userID');
+            if (!userID) {
+                throw new Error('User ID not found');
+            }
+            
+            // Get auth token
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('Authentication token not found');
+            }
+            
+            console.log('Updating password for user:', userID);
+            console.log('API URL:', `http://103.115.194.81:8080/ticket/Admin/updatePassword/${userID}/${newPassword}`);
+            
+            // Make API call to update password
+            const response = await fetch(`http://103.115.194.81:8080/ticket/Admin/updatePassword/${userID}/${newPassword}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            console.log('Password update response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to update password: ${response.status} ${response.statusText}`);
+            }
+            
+            // Show success message
+            successMessage.textContent = 'Password updated successfully! You will be redirected to login again.';
+            successMessage.style.display = 'block';
+            
+            // Reset form
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            // Update userPassActive in localStorage to true
+            localStorage.setItem('userPassActive', 'true');
+            
+            // Redirect to login after a delay
+            setTimeout(() => {
+                logout();
+                window.location.href = 'Logout';
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Error updating password:', error);
+            errorMessage.textContent = error.message || 'Failed to update password. Please try again.';
+            errorMessage.style.display = 'block';
+            
+            // Re-enable button
+            updateButton.disabled = false;
+            updateButton.textContent = 'Update Password';
+        }
+    }
+    
+    // Function to handle logout
+    function logout() {
+        // Clear all authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('tokenExpiry');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('employeeData');
+        localStorage.removeItem('userPassActive');
+        
+        // Redirect to login page
+        window.location.href = 'Logout';
+    }
+    
+    // Function to save authentication token with expiry
+    function saveAuthToken(token, expiresIn) {
+        const expiryTime = expiresIn * 10000000;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('tokenExpiry', expiryTime);
+        console.log("Token Expiry Set:", expiryTime);
+    }
+
+    // Function to fetch total tickets with authentication
+    async function fetchTotalTickets() {
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+            
+            const response = await fetch("http://103.115.194.81:8080/ticket/Admin/getTotalTicket", {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            // Check response status
+            if (response.status === 200) {
+                const totalTickets = await response.json();
+                document.querySelector(".dashboard-card:nth-child(3) h3").textContent = totalTickets;
+            } else {
+                // Handle authentication errors
+                if (response.status === 401 || response.status === 403 || response.status === 500) {
+                    // Token might be expired or invalid
+                    checkTokenExpiration();
+                    showSessionExpiredModal();
+                }
+                
+                throw new Error(`Failed to fetch total tickets: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error fetching total tickets:", error);
+            document.querySelector(".dashboard-card:nth-child(3) h3").textContent = "Error";
+            
+            // Check if the error is related to authentication
+            if (error.message.includes('401') || error.message.includes('500') || error.message.includes('403')) {
+                showSessionExpiredModal();
+            }
+        }
+    }
+    
+    // Function to toggle sidebar
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const main = document.querySelector('main');
+        sidebar.classList.toggle('hidden');
+        main.classList.toggle('collapsed');
+    }
+</script>
+
+</body>
+</html>

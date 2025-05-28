@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <style>
+        body{
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            padding: 200px;
+        }
+        .email-container {
+        border: 1px solid #c6e0f5;
+        background-color: #163078;
+        font-family: Arial, sans-serif;
+        padding: 17px;
+        padding-left: 0px;
+        padding-right: 0px;
+        color: #333;
+        border-radius: 16px;
+        }
+        .email-body {
+            background-color: #e8e9eb;
+            padding: 22px;
+            padding: 35px 0px 45px 20px;
+            border-radius: 3px;
+            height: 100%;
+            font-size: 13px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        .highlight {
+            font-weight: bold;
+
+        }
+        .img-logo {
+              width: 65px;
+              height: auto;
+              margin-left: 23px;
+              margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <img class="img-logo" src="https://www.dot1.in/img/dot1.png" alt="dot1 logo" height="40" />
+    <div class="email-body">
+        <p>Dear <span class="highlight" th:text="${name}">User</span>,</p>
+
+        <p>
+            This is Ticket <span class="highlight" th:text="${requestId}">REQ123456</span>
+            has been resolved.
+        </p>
+
+        <p>
+            Please be ensure that this issue is solved or not,<br> If it is fix then change the status of the ticket in "CLOSED".
+            <br>If it is not-fix then changed the status of the ticket in "RE-OPEN".
+        </p>
+
+        <p><strong>Request Category:</strong><br/>
+            <span th:text="${requestCategory}">CLMS-KRONOS -> L1</span></p>
+
+        <p><strong>Request Status:</strong><br/>
+            <span th:text="${requestStatus}">CLMS-KRONOS -> P1</span></p>
+
+
+        <p><strong>Short description:</strong><br/>
+            <span th:text="${shortDescription}">CLMS-KRONOS</span></p>
+
+
+        <p><strong>Description:</strong><br>
+            Consultant's ID: <span th:text="${DescriptionEmpCode}">Client Id</span><br>
+            Consultant's Name: <span th:text="${DescriptionEmpName}">Client Email</span><br>
+            Consultant's Email: <span th:text="${DescriptionEmpEmail}">Client Email</span><br>
+            Consultant's Mobile Phone: <span th:text="${DescriptionEmpPhone}">Phone</span><br>
+            Business Entity:  <span th:text="${DescriptionBSName}">Client Name</span><br>
+
+        <p>Please initiate fulfillment.</p>
+
+        <p>Regards,<br/><strong>Dot1 Team</strong></p>
+    </div>
+
+    <div class="footer">
+        Powered by <strong>Dot1</strong>
+    </div>
+</div>
+</body>
+</html>

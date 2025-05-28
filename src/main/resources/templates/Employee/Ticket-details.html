@@ -1,0 +1,3171 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Details - Consultant View</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+        
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+        
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+        
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+        
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .profile-details {
+            text-align: right;
+        }
+        
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 250px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 100px;
+            margin-bottom: 60px;
+        }
+
+        main.collapsed {
+            margin-left: 0;
+        }
+
+        /* Bucket selector */
+        .bucket-selector {
+            margin-bottom: 20px;
+        }
+        
+        .bucket-selector select {
+            padding: 10px;
+            border: 1px solid #003366;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Three-column layout */
+        .ticket-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 180px);
+        }
+
+        .ticket-column {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .column-header {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .column-subheader {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .subheader-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .subheader-tab.active {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .column-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-btn:hover {
+            background-color: #004a8f;
+        }
+
+        .filter-btn.active {
+            background-color: #004a8f;
+            font-weight: bold;
+        }
+
+        /* Search Inputs */
+        .search-container {
+            display: none;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-container input, .search-container select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-container button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Advanced Filter Container */
+        .advanced-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        /* Ticket Card Styles */
+        .ticket-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #003366;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .ticket-card.unassigned {
+            border-left-color: #dc3545;
+            background-color: #fff8f8;
+        }
+
+        .ticket-card.selected {
+            border: 2px solid #003366;
+            background-color: #f0f7ff;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .ticket-code {
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .ticket-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ticket-badges {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Level, Priority and Status Badges */
+        .level-badge, .priority-badge, .status-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        /* Level Colors */
+        .level-L1 {
+            background-color: #28a745; /* Green */
+        }
+
+        .level-L2 {
+            background-color: #ffc107; /* Yellow */
+            color: black;
+        }
+
+        .level-L3 {
+            background-color: #fd7e14; /* Orange */
+        }
+
+        .level-L4 {
+            background-color: #dc3545; /* Red */
+        }
+
+        /* Priority Colors */
+        .priority-P1 {
+            background-color: #dc3545; /* Red - Highest */
+        }
+
+        .priority-P2 {
+            background-color: #fd7e14; /* Orange - High */
+        }
+
+        .priority-P3 {
+            background-color: #ffc107; /* Yellow - Medium */
+            color: black;
+        }
+
+        .priority-P4 {
+            background-color: #28a745; /* Green - Low */
+        }
+
+        /* Status Colors */
+        .status-NEW {
+            background-color: #007bff; /* Blue */
+        }
+
+        .status-IN-PROGRESS {
+            background-color: #17a2b8; /* Cyan */
+        }
+
+        .status-ON-HOLD {
+            background-color: #ffc107; /* Yellow */
+            color: black;
+        }
+
+        .status-CANCEL {
+            background-color: #6c757d; /* Gray */
+        }
+
+        .status-CLOSED {
+            background-color: #343a40; /* Dark Gray */
+        }
+
+        .status-RESOLVED {
+            background-color: #28a745; /* Green */
+        }
+
+        .status-PENDING {
+            background-color: #dc3545; /* Red */
+        }
+
+        .ticket-info {
+            margin-bottom: 10px;
+        }
+
+        .ticket-info-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .ticket-info-label {
+            font-weight: bold;
+            width: 80px;
+            color: #666;
+        }
+
+        .ticket-info-value {
+            flex: 1;
+        }
+
+        .ticket-description {
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .assign-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .assign-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Modal/Popup Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: #858585;
+            float: right;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        /* Ticket Detail Styles */
+        .ticket-detail-header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticket-detail-header h2 {
+            margin: 0;
+            color: #003366;
+        }
+
+        .ticket-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ticket-section h3 {
+            margin-top: 0;
+            color: #003366;
+            font-size: 18px;
+        }
+
+        .ticket-detail-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #333;
+        }
+
+        /* Attachment Styles */
+        .attachments-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .attachment-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .attachment-name {
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .attachment-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .attachment-btn {
+            flex: 1;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .describtion {
+            border: 1px solid #ccc;
+            border-left: 5px solid #007bff;
+            border-radius: 6px;
+            background-color: #fefefe;
+            color: #333;
+            font-size: 16px;
+            padding: 15px;
+            line-height: 1.6;
+            margin-top: 10px;
+            white-space: pre-line;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .view-file-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Status Update Section */
+        .status-update-section {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .status-update-section h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+
+        .status-update-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-update-form select, .status-update-form textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .status-update-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .update-status-btn {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        /* Session expiry modal */
+        .modal1 {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal1-content1 {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal1-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal1-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .primary1-button {
+            background-color: #003366;
+            color: white;
+        }
+        
+        .primary1-button:hover {
+            background-color: #004a8f;
+        }
+        
+        .secondary1-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Loading Indicator */
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .loading:after {
+            content: " ";
+            display: block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 6px solid #003366;
+            border-color: #003366 transparent #003366 transparent;
+            animation: loading 1.2s linear infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* No Results Message */
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Footer Styles */
+        .footer-main {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        /* Transaction History Styles */
+        .transaction-history {
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .transaction-item.employee {
+            border-left: 4px solid #007bff;
+            background-color: #f0f7ff;
+        }
+
+        .transaction-item.client {
+            border-left: 4px solid #dc3545;
+            background-color: #fff8f8;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .transaction-id {
+            color: #666;
+        }
+
+        .transaction-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .transaction-user {
+            margin-bottom: 10px;
+        }
+
+        .transaction-user-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .transaction-comment {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .transaction-status {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Collapsible Section Styles */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #e9f2ff;
+            padding: 10px 15px;
+            border: 1px solid #cce0ff;
+            border-radius: 4px;
+            color: #003366;
+        }
+        
+        .toggle-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-body {
+            display: none;
+            padding: 15px 10px 0;
+        }
+        
+        .collapsible.active .collapsible-body {
+            display: block;
+        }
+        
+        .collapsible.active .toggle-icon {
+            transform: rotate(45deg); /* turn "+" into "x" */
+        }
+
+        /* Bucket Stats */
+        .bucket-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bucket-stat-card {
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            text-align: center;
+        }
+
+        .bucket-stat-title {
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 5px;
+        }
+
+        .bucket-stat-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 1200px) {
+            .ticket-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .ticket-column {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-main {
+                padding: 15px 10px;
+            }
+
+            .header-left img {
+                padding-left: 20%;
+            }
+
+            .header-center {
+                padding-left: 20px;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .sidebar {
+                transform: translateX(-250px);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .ticket-detail-info {
+                grid-template-columns: 1fr;
+            }
+        }
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #e9f2ff;
+            padding: 10px 15px;
+            border: 1px solid #cce0ff;
+            border-radius: 4px;
+            color: #003366;
+        }
+        
+        .toggle-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-body {
+            display: none;
+            padding: 15px 10px 0;
+        }
+        
+        .collapsible.active .collapsible-body {
+            display: block;
+        }
+        
+        .collapsible.active .toggle-icon {
+            transform: rotate(45deg); /* turn "+" into "x" */
+        }
+        
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="./DOT1 Logo.jpg" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="constdashboard">CONSULTANT Dashboard</a></li>
+            <li ><a href="consttkdwindow">ALL Ticket Buckets</a></li>
+            <li class="active"><a href="constmyticketpage">My Tickets</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main>
+        <h2>Ticket Details</h2>
+        
+        <!-- Bucket Stats -->
+        <div class="bucket-stats">
+            <div class="bucket-stat-card">
+                <div class="bucket-stat-title">Business Entity Tickets</div>
+                <div class="bucket-stat-count" id="businessEntityCount">0</div>
+            </div>
+            <div class="bucket-stat-card">
+                <div class="bucket-stat-title">Module Tickets</div>
+                <div class="bucket-stat-count" id="moduleCount">0</div>
+            </div>
+        </div>
+        
+        <!-- Bucket Selector -->
+        <div class="bucket-selector">
+            <select id="bucketSelect" onchange="changeBucket()">
+                <option value="myTickets">My Tickets</option>
+                <option value="businessEntity">Business Entity</option>
+                <option value="module">Module</option>
+            </select>
+        </div>
+        
+        <!-- Stats Summary Section - Only visible for My Tickets bucket -->
+        <div class="stats-summary" id="statsSection">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTickets">0</div>
+                <div class="stat-label">Total Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="unassignedTickets">0</div>
+                <div class="stat-label">Unassigned Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="newTickets">0</div>
+                <div class="stat-label">New Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="inProgressTickets">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="resolvedTickets">0</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+        
+        <!-- Filter Buttons -->
+        <div class="filter-buttons" id="filterButtonsSection">
+            <button class="filter-btn active" onclick="setActiveFilter(this, 'all')">View All</button>
+            <button class="filter-btn" onclick="setActiveFilter(this, 'ticketCode')">Find by Ticket Code</button>
+            <button class="filter-btn" onclick="setActiveFilter(this, 'client')">Find by Client</button>
+            <button class="filter-btn" onclick="setActiveFilter(this, 'module')">Find by Module</button>
+        </div>
+        
+        <!-- Search by Ticket Code -->
+        <div id="ticketCodeSearch" class="search-container">
+            <input type="text" id="ticketCodeInput" placeholder="Enter Ticket Code">
+            <button onclick="searchByTicketCode()">Search</button>
+        </div>
+        
+        <!-- Search by Client -->
+        <div id="clientSearch" class="search-container">
+            <select id="clientSelect">
+                <option value="">Select Client</option>
+            </select>
+            <button onclick="searchByClient()">Search</button>
+        </div>
+        
+        <!-- Search by Module -->
+        <div id="moduleSearch" class="search-container">
+            <select id="moduleSelect">
+                <option value="">Select Module</option>
+            </select>
+            <button onclick="searchByModule()">Search</button>
+        </div>
+        
+        <!-- Advanced Filter Section -->
+        <div class="advanced-filter-container" id="advancedFilterSection">
+            <div class="filter-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priorityFilter">Priority</label>
+                <select id="priorityFilter">
+                    <option value="">All Priorities</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="levelFilter">Level</label>
+                <select id="levelFilter">
+                    <option value="">All Levels</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="typeFilter">Type</label>
+                <select id="typeFilter">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="assignmentFilter">Assignment</label>
+                <select id="assignmentFilter">
+                    <option value="">All Tickets</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="unassigned">Unassigned</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="filter-btn" onclick="applyAdvancedFilters()">Apply Filters</button>
+                <button class="filter-btn" onclick="resetAdvancedFilters()">Reset</button>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading"></div>
+        
+        <!-- Three-column layout for tickets -->
+        <div class="ticket-container">
+            <!-- Left Column: Business Entity Tickets -->
+            <div class="ticket-column" id="businessEntityColumn">
+                <div class="column-header">Business Entity</div>
+                <div class="column-subheader">
+                    <div class="subheader-tab active" onclick="setActiveTab(this, 'businessAll')">All</div>
+                    <div class="subheader-tab" onclick="setActiveTab(this, 'businessAssigned')">Assigned</div>
+                    <div class="subheader-tab" onclick="setActiveTab(this, 'businessUnassigned')">Unassigned</div>
+                </div>
+                <div class="column-content" id="businessEntityContent">
+                    <!-- Tickets will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Middle Column: Module Tickets -->
+            <div class="ticket-column" id="moduleColumn">
+                <div class="column-header" id="moduleColumnHeader">Module</div>
+                <div class="column-subheader">
+                    <div class="subheader-tab active" onclick="setActiveTab(this, 'moduleAll')">All</div>
+                    <div class="subheader-tab" onclick="setActiveTab(this, 'moduleAssigned')">Assigned</div>
+                    <div class="subheader-tab" onclick="setActiveTab(this, 'moduleUnassigned')">Unassigned</div>
+                </div>
+                <div class="column-content" id="moduleContent">
+                    <!-- Tickets will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Right Column: My Tickets -->
+            <div class="ticket-column" id="myTicketsColumn">
+                <div class="column-header">My Tickets</div>
+                <div class="column-content" id="myTicketsContent">
+                    <!-- Tickets will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="ticketDetails">
+                <!-- Ticket details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Expiry Modal -->
+    <div id="sessionModal" class="modal1">
+        <div class="modal1-content1">
+            <h3>Session Expired</h3>
+            <p>Your session has expired. Please login again to continue.</p>
+            <div class="modal1-buttons">
+                <button class="modal1-button primary1-button" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer-main">
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>
+        // Global variables
+        let allBusinessEntityTickets = [];
+        let allModuleTickets = [];
+        let myTickets = [];
+        let clients = new Set();
+        let modules = new Set();
+        let statuses = new Set();
+        let priorities = new Set();
+        let levels = new Set();
+        let types = new Set();
+        let currentActiveBusinessTab = 'businessAll';
+        let currentActiveModuleTab = 'moduleAll';
+        let currentSelectedTicket = null;
+        let employeeData = null;
+        let currentBucket = 'myTickets'; // Default bucket
+        let subStatuses = []; // For storing sub-status options
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+            
+            // Load initial data
+            loadInitialData();
+            
+            // Set initial bucket visibility
+            updateBucketVisibility();
+        });
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true; // If there's no expiry time stored, assume expired
+            }
+        
+            const expiryTime = Number(tokenExpiry); // Convert to number safely
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true; // Treat invalid values as expired
+            }
+        
+            return Date.now() > expiryTime;
+        }
+        
+        // Function to check token expiration
+        function checkTokenExpiration() {
+            if (isTokenExpired()) {
+                showSessionExpiredModal();
+            }
+        }
+        
+        // Function to show session expired modal
+        function showSessionExpiredModal() {
+            const modal = document.getElementById('sessionModal');
+            modal.style.display = 'block';
+            
+            // Prevent closing the modal by clicking outside
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    // Do nothing - force user to click the login button
+                }
+            };
+        }
+        
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = '../Login.html';
+        }
+        
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+        
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const employeeDataStr = localStorage.getItem('employeeData');
+                if (!employeeDataStr) {
+                    return;
+                }
+                
+                employeeData = JSON.parse(employeeDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of employee name for avatar
+                const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${employeeData.empName || 'User'}</p>
+                        <p class="admin-id">Consultant ID: ${employeeData.empCode || 'N/A'}</p>
+                        <p class="admin-id">Module: ${employeeData.modulesMaster_id?.modcode || 'N/A'}</p>
+                        <p class="admin-id">Department: ${employeeData.companyName || 'N/A'}</p>
+                    </div>
+                `;
+                
+                // Update module column header with employee's module
+                if (employeeData.modulesMaster_id && employeeData.modulesMaster_id.modcode) {
+                    document.getElementById('moduleColumnHeader').textContent = 
+                        `Module: ${employeeData.modulesMaster_id.modcode}`;
+                }
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        
+        // Function to handle logout
+        function logout() {
+            // Clear all authentication data
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('employeeData');
+            
+            // Redirect to login page
+            window.location.href = '../Login.html';
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('main');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+        
+        // Change bucket
+        function changeBucket() {
+            const bucketSelect = document.getElementById('bucketSelect');
+            currentBucket = bucketSelect.value;
+            
+            // Update bucket visibility
+            updateBucketVisibility();
+            
+            // Reload data for the selected bucket
+            loadInitialData();
+        }
+        
+        // Update bucket visibility
+        function updateBucketVisibility() {
+            const businessColumn = document.getElementById('businessEntityColumn');
+            const moduleColumn = document.getElementById('moduleColumn');
+            const myTicketsColumn = document.getElementById('myTicketsColumn');
+            const statsSection = document.getElementById('statsSection');
+            
+            // Hide all columns first
+            businessColumn.style.display = 'none';
+            moduleColumn.style.display = 'none';
+            myTicketsColumn.style.display = 'none';
+            
+            // Show only the selected bucket
+            if (currentBucket === 'businessEntity') {
+                businessColumn.style.display = 'flex';
+                statsSection.style.display = 'none';
+            } else if (currentBucket === 'module') {
+                moduleColumn.style.display = 'flex';
+                statsSection.style.display = 'none';
+            } else if (currentBucket === 'myTickets') {
+                myTicketsColumn.style.display = 'flex';
+                statsSection.style.display = 'flex';
+            }
+        }
+        
+        // Load initial data
+        function loadInitialData() {
+            // Show loading indicator only when loading data
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            
+            if (currentBucket === 'businessEntity' || currentBucket === 'all') {
+                // Load business entity tickets
+                loadBusinessEntityTickets('all');
+            }
+            
+            if (currentBucket === 'module' || currentBucket === 'all') {
+                // Load module tickets if employee has a module
+                if (employeeData && employeeData.modulesMaster_id && employeeData.modulesMaster_id.modId) {
+                    loadModuleTickets('all', employeeData.modulesMaster_id.modId);
+                } else {
+                    document.getElementById('moduleContent').innerHTML = 
+                        '<div class="no-results">No module assigned to your profile.</div>';
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                }
+            }
+            
+            if (currentBucket === 'myTickets' || currentBucket === 'all') {
+                // Load my tickets
+                loadMyTickets();
+            }
+        }
+        
+        // Set active tab
+        function setActiveTab(tabElement, tabId) {
+            // Get parent container
+            const parentContainer = tabElement.parentElement;
+            
+            // Remove active class from all tabs in this container
+            const tabs = parentContainer.querySelectorAll('.subheader-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tabElement.classList.add('active');
+            
+            // Determine which column this is and update the active tab
+            if (tabId.startsWith('business')) {
+                currentActiveBusinessTab = tabId;
+                
+                // Load appropriate business entity tickets
+                if (tabId === 'businessAll') {
+                    loadBusinessEntityTickets('all');
+                } else if (tabId === 'businessAssigned') {
+                    loadBusinessEntityTickets('assigned');
+                } else if (tabId === 'businessUnassigned') {
+                    loadBusinessEntityTickets('unassigned');
+                }
+            } else if (tabId.startsWith('module')) {
+                currentActiveModuleTab = tabId;
+                
+                // Load appropriate module tickets
+                if (employeeData && employeeData.modulesMaster_id && employeeData.modulesMaster_id.modId) {
+                    const modId = employeeData.modulesMaster_id.modId;
+                    
+                    if (tabId === 'moduleAll') {
+                        loadModuleTickets('all', modId);
+                    } else if (tabId === 'moduleAssigned') {
+                        loadModuleTickets('assigned', modId);
+                    } else if (tabId === 'moduleUnassigned') {
+                        loadModuleTickets('unassigned', modId);
+                    }
+                }
+            }
+        }
+        
+        // Load business entity tickets
+        async function loadBusinessEntityTickets(type) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!employeeData || !employeeData.companyName) {
+                    throw new Error('Company name not found in employee data');
+                }
+                
+                const companyName = employeeData.companyName;
+                let url;
+                
+                // Set URL based on ticket type
+                if (type === 'all') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getAllTicketeEMP/${encodeURIComponent(companyName)}`;
+                } else if (type === 'assigned') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getAssignTicketeEMP/${encodeURIComponent(companyName)}`;
+                } else if (type === 'unassigned') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getNotAssignTicketeEMP/${encodeURIComponent(companyName)}`;
+                }
+                
+                // Show loading indicator
+                document.getElementById('businessEntityContent').innerHTML = '<div class="loading"></div>';
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch tickets');
+                }
+                
+                const tickets = await response.json();
+                allBusinessEntityTickets = tickets;
+                
+                // Update bucket stats
+                document.getElementById('businessEntityCount').textContent = tickets.length;
+                
+                // Extract unique values for filters
+                populateFilterDropdowns(tickets);
+                
+                // Display tickets
+                displayBusinessEntityTickets(tickets);
+                
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching business entity tickets:', error);
+                document.getElementById('businessEntityContent').innerHTML = 
+                    '<div class="no-results">Error loading tickets. Please try again later.</div>';
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+        
+        // Load module tickets
+        async function loadModuleTickets(type, modId) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                let url;
+                
+                // Set URL based on ticket type
+                if (type === 'all') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getAllByModule/${modId}`;
+                } else if (type === 'assigned') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getASsignByModule/${modId}`;
+                } else if (type === 'unassigned') {
+                    url = `http://103.115.194.81:8080/ticket/Employee/getNotASsignByModule/${modId}`;
+                }
+                
+                // Show loading indicator
+                document.getElementById('moduleContent').innerHTML = '<div class="loading"></div>';
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch module tickets');
+                }
+                
+                const tickets = await response.json();
+                allModuleTickets = tickets;
+                
+                // Update bucket stats
+                document.getElementById('moduleCount').textContent = tickets.length;
+                
+                // Display tickets
+                displayModuleTickets(tickets);
+                
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching module tickets:', error);
+                document.getElementById('moduleContent').innerHTML = 
+                    '<div class="no-results">Error loading module tickets. Please try again later.</div>';
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+        
+        // Load my tickets
+        async function loadMyTickets() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!employeeData || !employeeData.empId) {
+                    throw new Error('Employee ID not found in employee data');
+                }
+                
+                const empId = employeeData.empId;
+                const url = `http://103.115.194.81:8080/ticket/Employee/getAllTicketByempID/${empId}`;
+                
+                // Show loading indicator
+                document.getElementById('myTicketsContent').innerHTML = '<div class="loading"></div>';
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch my tickets');
+                }
+                
+                const tickets = await response.json();
+                myTickets = tickets;
+                
+                // Update ticket stats
+                updateTicketStats(tickets);
+                
+                // Display tickets
+                displayMyTickets(tickets);
+                
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            } catch (error) {
+                console.error('Error fetching my tickets:', error);
+                document.getElementById('myTicketsContent').innerHTML = 
+                    '<div class="no-results">Error loading your tickets. Please try again later.</div>';
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+        
+        // Update ticket statistics
+        function updateTicketStats(tickets) {
+            // Only update stats if this is the My Tickets bucket
+            if (currentBucket === 'myTickets') {
+                // Total tickets
+                document.getElementById('totalTickets').textContent = tickets.length;
+                
+                // Unassigned tickets
+                const unassignedCount = tickets.filter(ticket => !ticket.employeeId).length;
+                document.getElementById('unassignedTickets').textContent = unassignedCount;
+                
+                // New tickets
+                const newCount = tickets.filter(ticket => 
+                    ticket.status && ticket.status.gmDescription === "NEW"
+                ).length;
+                document.getElementById('newTickets').textContent = newCount;
+                
+                // In progress tickets
+                const inProgressCount = tickets.filter(ticket => 
+                    ticket.status && ticket.status.gmDescription === "IN-PROGRESS"
+                ).length;
+                document.getElementById('inProgressTickets').textContent = inProgressCount;
+                
+                // Resolved tickets
+                const resolvedCount = tickets.filter(ticket => 
+                    ticket.status && ticket.status.gmDescription === "RESOLVED"
+                ).length;
+                document.getElementById('resolvedTickets').textContent = resolvedCount;
+            }
+        }
+        
+        // Populate filter dropdowns with unique values
+        function populateFilterDropdowns(tickets) {
+            // Clear existing sets
+            clients = new Set();
+            modules = new Set();
+            statuses = new Set();
+            priorities = new Set();
+            levels = new Set();
+            types = new Set();
+            
+            // Extract unique values
+            tickets.forEach(ticket => {
+                if (ticket.clientid && ticket.clientid.clientName) {
+                    clients.add(JSON.stringify({
+                        id: ticket.clientid.clientId,
+                        name: ticket.clientid.clientName
+                    }));
+                }
+                
+                if (ticket.modulesid && ticket.modulesid.modcode) {
+                    modules.add(JSON.stringify({
+                        id: ticket.modulesid.modId,
+                        code: ticket.modulesid.modcode
+                    }));
+                }
+                
+                if (ticket.status && ticket.status.gmDescription) {
+                    statuses.add(JSON.stringify({
+                        id: ticket.status.gmid,
+                        description: ticket.status.gmDescription
+                    }));
+                }
+                
+                if (ticket.priority && ticket.priority.gmDescription) {
+                    priorities.add(JSON.stringify({
+                        id: ticket.priority.gmid,
+                        description: ticket.priority.gmDescription
+                    }));
+                }
+                
+                if (ticket.ticketlevel && ticket.ticketlevel.gmDescription) {
+                    levels.add(JSON.stringify({
+                        id: ticket.ticketlevel.gmid,
+                        description: ticket.ticketlevel.gmDescription
+                    }));
+                }
+                
+                if (ticket.tickettype && ticket.tickettype.gmDescription) {
+                    types.add(JSON.stringify({
+                        id: ticket.tickettype.gmid,
+                        description: ticket.tickettype.gmDescription
+                    }));
+                }
+            });
+            
+            // Populate client dropdown
+            const clientSelect = document.getElementById('clientSelect');
+            clientSelect.innerHTML = '<option value="">Select Client</option>';
+            Array.from(clients).map(client => JSON.parse(client))
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.id;
+                    option.textContent = client.name;
+                    clientSelect.appendChild(option);
+                });
+            
+            // Populate module dropdown
+            const moduleSelect = document.getElementById('moduleSelect');
+            moduleSelect.innerHTML = '<option value="">Select Module</option>';
+            Array.from(modules).map(module => JSON.parse(module))
+                .sort((a, b) => a.code.localeCompare(b.code))
+                .forEach(module => {
+                    const option = document.createElement('option');
+                    option.value = module.id;
+                    option.textContent = module.code;
+                    moduleSelect.appendChild(option);
+                });
+                
+            // Populate advanced filter dropdowns
+            
+            // Status filter
+            const statusFilter = document.getElementById('statusFilter');
+            statusFilter.innerHTML = '<option value="">All Statuses</option>';
+            Array.from(statuses).map(status => JSON.parse(status))
+                .sort((a, b) => a.description.localeCompare(b.description))
+                .forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status.id;
+                    option.textContent = status.description;
+                    statusFilter.appendChild(option);
+                });
+                
+            // Priority filter
+            const priorityFilter = document.getElementById('priorityFilter');
+            priorityFilter.innerHTML = '<option value="">All Priorities</option>';
+            Array.from(priorities).map(priority => JSON.parse(priority))
+                .sort((a, b) => a.description.localeCompare(b.description))
+                .forEach(priority => {
+                    const option = document.createElement('option');
+                    option.value = priority.id;
+                    option.textContent = priority.description;
+                    priorityFilter.appendChild(option);
+                });
+                
+            // Level filter
+            const levelFilter = document.getElementById('levelFilter');
+            levelFilter.innerHTML = '<option value="">All Levels</option>';
+            Array.from(levels).map(level => JSON.parse(level))
+                .sort((a, b) => a.description.localeCompare(b.description))
+                .forEach(level => {
+                    const option = document.createElement('option');
+                    option.value = level.id;
+                    option.textContent = level.description;
+                    levelFilter.appendChild(option);
+                });
+                
+            // Type filter
+            const typeFilter = document.getElementById('typeFilter');
+            typeFilter.innerHTML = '<option value="">All Types</option>';
+            Array.from(types).map(type => JSON.parse(type))
+                .sort((a, b) => a.description.localeCompare(b.description))
+                .forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type.id;
+                    option.textContent = type.description;
+                    typeFilter.appendChild(option);
+                });
+        }
+        
+        // Display business entity tickets
+        function displayBusinessEntityTickets(tickets) {
+            const contentContainer = document.getElementById('businessEntityContent');
+            
+            if (tickets.length === 0) {
+                contentContainer.innerHTML = '<div class="no-results">No tickets found.</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            tickets.forEach(ticket => {
+                const isUnassigned = !ticket.employeeId;
+                const isAssignedToOther = ticket.employeeId && ticket.employeeId.empId !== employeeData.empId;
+                
+                html += `
+                    <div class="ticket-card ${isUnassigned ? 'unassigned' : ''}" 
+                         onclick="viewTicketDetails(${ticket.ticketid}, 'business')">
+                        <div class="ticket-header">
+                            <div class="ticket-code">${ticket.ticketcode || 'N/A'}</div>
+                            <div class="ticket-date">${formatDateTime(ticket.createdon) || 'N/A'}</div>
+                        </div>
+                        <div class="ticket-badges">
+                            ${ticket.ticketlevel && ticket.ticketlevel.gmDescription ? 
+                            `<span class="level-badge level-${ticket.ticketlevel.gmDescription}">${ticket.ticketlevel.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.priority && ticket.priority.gmDescription ? 
+                            `<span class="priority-badge priority-${ticket.priority.gmDescription}">${ticket.priority.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.status && ticket.status.gmDescription ? 
+                            `<span class="status-badge status-${ticket.status.gmDescription}">${ticket.status.gmDescription}</span>` : 
+                            ''}
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Client:</div>
+                                <div class="ticket-info-value">${ticket.clientid && ticket.clientid.clientName ? ticket.clientid.clientName : 'N/A'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Module:</div>
+                                <div class="ticket-info-value">${ticket.modulesid && ticket.modulesid.modcode ? ticket.modulesid.modcode : 'N/A'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Assign to:</div>
+                                <div class="ticket-info-value">
+                                    ${ticket.employeeId ? 
+                                    `${ticket.employeeId.empName || 'N/A'}` : 
+                                    '<strong style="color: #dc3545;">Not assigned yet</strong>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-description">${ticket.ticketnote || 'No description available'}</div>
+                        ${(ticket.status?.gmDescription !== 'RESOLVED' && (isUnassigned || isAssignedToOther)) ? 
+                        `<button class="assign-btn" onclick="handleAssignButton(event, ${ticket.ticketid}, ${isUnassigned}, ${isAssignedToOther})">Assign to Me</button>` 
+                    : ''}
+                        
+                    </div> 
+            
+                    `;
+            });
+            
+            contentContainer.innerHTML = html;
+        }
+        
+        // Display module tickets
+        function displayModuleTickets(tickets) {
+            const contentContainer = document.getElementById('moduleContent');
+            
+            if (tickets.length === 0) {
+                contentContainer.innerHTML = '<div class="no-results">No module tickets found.</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            tickets.forEach(ticket => {
+                const isUnassigned = !ticket.employeeId;
+                const isAssignedToOther = ticket.employeeId && ticket.employeeId.empId !== employeeData.empId;
+                
+                html += `
+                    <div class="ticket-card ${isUnassigned ? 'unassigned' : ''}" 
+                         onclick="viewTicketDetails(${ticket.ticketid}, 'module')">
+                        <div class="ticket-header">
+                            <div class="ticket-code">${ticket.ticketcode || 'N/A'}</div>
+                            <div class="ticket-date">${formatDateTime(ticket.createdon) || 'N/A'}</div>
+                        </div>
+                        <div class="ticket-badges">
+                            ${ticket.ticketlevel && ticket.ticketlevel.gmDescription ? 
+                            `<span class="level-badge level-${ticket.ticketlevel.gmDescription}">${ticket.ticketlevel.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.priority && ticket.priority.gmDescription ? 
+                            `<span class="priority-badge priority-${ticket.priority.gmDescription}">${ticket.priority.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.status && ticket.status.gmDescription ? 
+                            `<span class="status-badge status-${ticket.status.gmDescription}">${ticket.status.gmDescription}</span>` : 
+                            ''}
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Client:</div>
+                                <div class="ticket-info-value">${ticket.clientid && ticket.clientid.clientName ? ticket.clientid.clientName : 'N/A'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Module:</div>
+                                <div class="ticket-info-value">${ticket.modulesid && ticket.modulesid.modcode ? ticket.modulesid.modcode : 'N/A'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Assign to:</div>
+                                <div class="ticket-info-value">
+                                    ${ticket.employeeId ? 
+                                    `${ticket.employeeId.empName || 'N/A'}` : 
+                                    '<strong style="color: #dc3545;">Not assigned yet</strong>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-description">${ticket.ticketnote || 'No description available'}</div>
+                        ${(ticket.status?.gmDescription !== 'RESOLVED' && (isUnassigned || isAssignedToOther)) ? 
+                        `<button class="assign-btn" onclick="handleAssignButton(event, ${ticket.ticketid}, ${isUnassigned}, ${isAssignedToOther})">Assign to Me</button>` 
+                    : ''}
+                  </div>
+                `;
+            });
+            
+            contentContainer.innerHTML = html;
+        }
+        function handleAssignButton(event, ticketId, isUnassigned, isAssignedToOther) {
+            if (isUnassigned) {
+                assignTicketToMeNew(event, ticketId);
+            } else if (isAssignedToOther) {
+                assignTicketToMe(event, ticketId);
+            }
+        }
+        // Display my tickets
+        function displayMyTickets(tickets) {
+            const contentContainer = document.getElementById('myTicketsContent');
+            
+            if (tickets.length === 0) {
+                contentContainer.innerHTML = '<div class="no-results">You have no assigned tickets.</div>';
+                return;
+            }
+            
+            let html = '';
+            
+            tickets.forEach(ticket => {
+                html += `
+                    <div class="ticket-card" onclick="viewTicketDetails(${ticket.ticketid}, 'my')">
+                        <div class="ticket-header">
+                            <div class="ticket-code">${ticket.ticketcode || 'N/A'}</div>
+                            <div class="ticket-date">${formatDateTime(ticket.createdon) || 'N/A'}</div>
+                        </div>
+                        <div class="ticket-badges">
+                            ${ticket.ticketlevel && ticket.ticketlevel.gmDescription ? 
+                            `<span class="level-badge level-${ticket.ticketlevel.gmDescription}">${ticket.ticketlevel.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.priority && ticket.priority.gmDescription ? 
+                            `<span class="priority-badge priority-${ticket.priority.gmDescription}">${ticket.priority.gmDescription}</span>` : 
+                            ''}
+                            
+                            ${ticket.status && ticket.status.gmDescription ? 
+                            `<span class="status-badge status-${ticket.status.gmDescription}">${ticket.status.gmDescription}</span>` : 
+                            ''}
+                        </div>
+                        <div class="ticket-info">
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Client:</div>
+                                <div class="ticket-info-value">${ticket.clientid && ticket.clientid.clientName ? ticket.clientid.clientName : 'N/A'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Module:</div>
+                                <div class="ticket-info-value">${ticket.modulesid && ticket.modulesid.modcode ? ticket.modulesid.modcode : 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="ticket-description">${ticket.ticketnote || 'No description available'}</div>
+                    </div>
+                `;
+            });
+            
+            contentContainer.innerHTML = html;
+        }
+        
+        async function viewTicketDetails(ticketId, source) {
+        // View ticket details
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                // Show loading indicator
+                document.getElementById('ticketDetails').innerHTML = '<div class="loading"></div>';
+                document.getElementById('ticketModal').style.display = 'block';
+                
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Employee/getTicketWithAttachments/${ticketId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch ticket details');
+                }
+                
+                const ticket = await response.json();
+                currentSelectedTicket = ticket;
+                
+                // If this is a "my ticket", fetch transaction history
+                let transactions = [];
+                if (source === 'my') {
+                    try {
+                        const transactionResponse = await fetch(`http://103.115.194.81:8080/ticket/Employee/getTranscation/${ticketId}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (transactionResponse.ok) {
+                            transactions = await transactionResponse.json();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching transaction history:', error);
+                    }
+                }
+                
+                // Display ticket details
+                displayTicketDetails(ticket, source, transactions);
+            } catch (error) {
+                console.error('Error fetching ticket details:', error);
+                document.getElementById('ticketDetails').innerHTML = 
+                    '<div class="no-results">Error loading ticket details. Please try again later.</div>';
+            }
+        }
+        
+        // Display ticket details in modal
+        function displayTicketDetails(ticket, source, transactions = []) {
+            const modalContent = document.getElementById('ticketDetails');
+            const isUnassigned = !ticket.employeeId;
+            const isAssignedToOther = ticket.employeeId && ticket.employeeId.empId !== employeeData.empId;
+            
+            // Ticket header with ticket code and type
+            let html = `
+                <div class="ticket-detail-header">
+                    <h2>${ticket.ticketcode || 'N/A'}</h2>
+                    <div>
+                        ${ticket.tickettype && ticket.tickettype.gmDescription ? 
+                        `<strong>${ticket.tickettype.gmDescription}</strong>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Ticket basic info section
+            html += `
+                <div class="ticket-section">
+                    <h3>Ticket Information</h3>
+                    <div class="ticket-detail-info">
+                        <div class="info-item">
+                            <div class="info-label">Ticket Level</div>
+                            <div class="info-value">
+                                ${ticket.ticketlevel && ticket.ticketlevel.gmDescription ?
+                        `<span class="level-badge level-${ticket.ticketlevel.gmDescription}">${ticket.ticketlevel.gmDescription}</span>` :
+                        'N/A'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Priority</div>
+                            <div class="info-value">
+                                ${ticket.priority && ticket.priority.gmDescription ?
+                        `<span class="priority-badge priority-${ticket.priority.gmDescription}">${ticket.priority.gmDescription}</span>` :
+                        'N/A'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">
+                                ${ticket.status && ticket.status.gmDescription ?
+                        `<span class="status-badge status-${ticket.status.gmDescription}">${ticket.status.gmDescription}</span>` :
+                        'N/A'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Client Name</div>
+                            <div class="info-value">${ticket.clientid?.clientName || 'N/A'}</div>
+                        </div>
+                     
+                        <div class="info-item">
+                            <div class="info-label">Created By</div>
+                            <div class="info-value">${ticket.cmexpertId?.cmeName || 'N/A'}</div>
+                        </div>
+                   
+                        <div class="info-item">
+                            <div class="info-label">Created Date</div>
+                            <div class="info-value">${formatDateTime(ticket.createdon) || 'N/A'}</div>
+                        </div>
+        
+                    </div>
+                </div>
+            `;
+           
+    
+          
+            
+              // Ticket description section
+              html += `
+              <div class="ticket-section">
+                  <h3>Issue Details</h3>
+                  <div class="ticket-detail-info">
+                      <div class="info-item">
+                          <div class="info-label">Issue Summary</div>
+                          <div class="info-value">${ticket.ticketnote || 'N/A'}</div>
+                      </div>
+                    </br>
+                      <div class="info-item">
+                        <div class="info-label">Module</div>
+                        <div class="info-value">${ticket.modulesid && ticket.modulesid.modcode ? ticket.modulesid.modcode : 'N/A'}</div>
+                    </div>  
+                   
+                </div>
+                <br>
+                <br>
+ 
+            <div>
+                <div class="attachment-item">
+                    <div class="attachment-name" style="font-size: 18px; font-weight: bold;">Description</div>
+                    <div class="describtion">${ticket.ticketdesc || 'N/A'}</div>
+                    </div> 
+            </div>
+        </div>
+         
+          `;
+            // Attachments section
+            if (ticket.attachments && ticket.attachments.length > 0) {
+                html += `
+                    <div class="ticket-section">
+                        <h3>Attachments</h3>
+                        <div class="attachments-list">
+                `;
+                
+                ticket.attachments.forEach(attachment => {
+                    html += `
+                        <div class="attachment-item">
+                            <div class="attachment-name">${attachment.fileName || 'Unnamed File'}</div>
+                            <div class="attachment-actions">
+                                <button class="attachment-btn download-btn" onclick="downloadAttachment('${attachment.filePath}', '${attachment.fileName}')">Download</button>
+                                <button class="attachment-btn view-file-btn" onclick="viewAttachment('${attachment.filePath}')">View</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+              // Client details section
+              if (ticket.clientid) {
+                html += `
+                <div class="ticket-section collapsible">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <span>Client Details</span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="ticket-detail-info">
+                        <div class="info-item">
+                            <div class="info-label">Client Code</div>
+                            <div class="info-value">${ticket.clientid.clientCode || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Client Name</div>
+                            <div class="info-value">${ticket.clientid.clientName || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Client Group</div>
+                            <div class="info-value">${ticket.clientid.clientGroup || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+                `;
+                
+                // SPOC details if available
+                if (ticket.clientid.mclientSPOCMasters && ticket.clientid.mclientSPOCMasters.length > 0) {
+                    const spoc = ticket.clientid.mclientSPOCMasters[0];
+                    html += `
+                    <div class="ticket-section collapsible">
+                        <div class="collapsible-header" onclick="toggleSection(this)">
+                            <span>SPOC Details</span>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="collapsible-body">
+                        <div class="ticket-detail-info">
+                            <div class="info-item">
+                                <div class="info-label">SPOC Name</div>
+                                <div class="info-value">${spoc.spocName || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Designation</div>
+                                <div class="info-value">${spoc.designation || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email ID</div>
+                                <div class="info-value">${spoc.emailId || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Contact Number</div>
+                                <div class="info-value">${spoc.contactNumber || 'N/A'}</div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
+            }
+            // CME details section
+            if (ticket.cmexpertId) {
+                html += `
+                <div class="ticket-section collapsible">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <span>CME Details</span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+
+                    <div class="collapsible-body">
+                    <div class="ticket-detail-info">
+                        <div class="info-item">
+                            <div class="info-label">CME ID</div>
+                            <div class="info-value">${ticket.cmexpertId.cmeId || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">CME Name</div>
+                            <div class="info-value">${ticket.cmexpertId.cmeName || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Designation</div>
+                            <div class="info-value">${ticket.cmexpertId.cmeDesignation || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email ID</div>
+                            <div class="info-value">${ticket.cmexpertId.cmeemailId || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">${ticket.cmexpertId.cmephoneNo || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                `;
+            }
+            
+            // Employee details section
+            if (ticket.employeeId) {
+                html += `
+                <div class="ticket-section collapsible">
+                    <div class="collapsible-header" onclick="toggleSection(this)">
+                        <span>Employee Details</span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="ticket-detail-info">
+                            <div class="info-item">
+                                <div class="info-label">Employee Code</div>
+                                <div class="info-value">${ticket.employeeId.empCode || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Employee Name</div>
+                                <div class="info-value">${ticket.employeeId.empName || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email ID</div>
+                                <div class="info-value">${ticket.employeeId.emailId || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Phone Number</div>
+                                <div class="info-value">${ticket.employeeId.phoneNo || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            } else if (source === 'module' || isUnassigned) {
+                // Show assign to me button if ticket is not assigned or in module bucket
+                html += `
+                    <div class="ticket-section">
+                        <h3>Employee Assignment</h3>
+                        <div class="ticket-detail-info">
+                            <div class="info-item">
+                                <div class="info-value" style="color: #dc3545; font-weight: bold;">
+                                    ${isUnassigned ? 'This ticket is not assigned to any employee yet.' : 'This ticket is assigned to another employee but can be reassigned.'}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <button class="assign-btn" onclick="assignTicketToMeNew(null, ${ticket.ticketid})">Self Assign</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Status update section (only for assigned tickets to the current employee in My Tickets bucket)
+            if (source === 'my' && ticket.employeeId && employeeData && ticket.employeeId.empId === employeeData.empId) {
+                html += `
+                    <div class="ticket-section">
+                        <h3>Update Status</h3>
+                        <div class="status-update-section">
+                            <div class="status-update-form">
+                                <select id="statusUpdateSelect" onchange="checkForSubStatus()">
+                                    <option value="">Select Status</option>
+                                    <!-- Status options will be loaded dynamically -->
+                                </select>
+                                
+                                <div id="subStatusContainer" style="display: none; margin-top: 10px;">
+                                    <select id="subStatusSelect">
+                                        <option value="">Select Sub-Status</option>
+                                        <!-- Sub-status options will be loaded dynamically -->
+                                    </select>
+                                </div>
+                                
+                                <textarea id="statusCommentInput" placeholder="Enter comment (required)" style="margin-top: 10px;"></textarea>
+                                
+                                <button class="update-status-btn" onclick="updateTicketStatus(${ticket.ticketid})" style="margin-top: 10px;">Update Status</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Load status options
+                loadStatusOptions();
+                
+                // Transaction history section
+                if (transactions && transactions.length > 0) {
+                    html += `
+                        <div class="ticket-section">
+                            <h3>Last Transactions</h3>
+                            <div class="transaction-history">
+                    `;
+                    
+                    transactions.forEach(transaction => {
+                        const isEmployee = transaction.employeeDto && transaction.empNameDto;
+                        const isClient = transaction.cmeexpertDto && transaction.cmeNameDto;
+                        
+                        html += `
+                            <div class="transaction-item ${isEmployee ? 'employee' : isClient ? 'client' : ''}">
+                                <div class="transaction-header">
+                                    <div class="transaction-id">Transaction ID: ${transaction.uaId || 'N/A'}</div>
+                                    <div class="transaction-date">${formatDateTime(transaction.updateDate) || 'N/A'}</div>
+                                </div>
+                                
+                                <div class="transaction-user">
+                                    ${isEmployee ? 
+                                    `<div class="transaction-user-label">Consultant ID & Name :${transaction.employeeDto || 'N/A'} : ${transaction.empNameDto || 'N/A'}</div>` : 
+                                    isClient ? 
+                                    `<div class="transaction-user-label">Client ID & Name : ${transaction.cmeexpertDto || 'N/A'} : ${transaction.cmeNameDto || 'N/A'}</div>
+                                     ` : ''}
+                                </div>
+                                
+                                
+                                <div class="transaction-comment">
+                                    ${transaction.commentDto || 'No comment'}
+                                </div>
+                                
+                                <div class="transaction-status">
+                                    <div>Status: ${transaction.statusName || 'N/A'}</div>
+                                    ${transaction.sub_statusDto ? `<div>Sub-Status: ${transaction.sub_statusDto.sub_status || 'N/A'}</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            modalContent.innerHTML = html;
+        }
+        
+        // Load status options for dropdown
+        async function loadStatusOptions() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch('http://103.115.194.81:8080/ticket/Employee/dropofStatus', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch status options');
+                }
+                
+                const statuses = await response.json();
+                const statusSelect = document.getElementById('statusUpdateSelect');
+                
+                if (statusSelect) {
+                    statusSelect.innerHTML = '<option value="">Select Status</option>';
+                    
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status.gmid;
+                        option.textContent = status.gmDescription;
+                        option.dataset.description = status.gmDescription;
+                        statusSelect.appendChild(option);
+                    });
+                    
+                    // Set current status as selected if available
+                    if (currentSelectedTicket && currentSelectedTicket.status && currentSelectedTicket.status.gmid) {
+                        statusSelect.value = currentSelectedTicket.status.gmid;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading status options:', error);
+            }
+        }
+        
+        // Check if selected status is ON-HOLD and load sub-statuses
+        async function checkForSubStatus() {
+            const statusSelect = document.getElementById('statusUpdateSelect');
+            const subStatusContainer = document.getElementById('subStatusContainer');
+            
+            if (!statusSelect || !subStatusContainer) return;
+            
+            const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+            const statusDescription = selectedOption ? selectedOption.dataset.description : '';
+            
+            if (statusDescription === 'ON-HOLD') {
+                // Show sub-status container
+                subStatusContainer.style.display = 'block';
+                
+                // Load sub-statuses
+                await loadSubStatusOptions();
+            } else {
+                // Hide sub-status container
+                subStatusContainer.style.display = 'none';
+            }
+        }
+        
+        // Load sub-status options
+        async function loadSubStatusOptions() {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                const response = await fetch('http://103.115.194.81:8080/ticket/Employee/dropdownOFsubStatus', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to fetch sub-status options');
+                }
+                
+                subStatuses = await response.json();
+                const subStatusSelect = document.getElementById('subStatusSelect');
+                
+                if (subStatusSelect) {
+                    subStatusSelect.innerHTML = '<option value="">Select Sub-Status</option>';
+                    
+                    subStatuses.forEach(subStatus => {
+                        const option = document.createElement('option');
+                        option.value = subStatus.subId;
+                        option.textContent = subStatus.sub_status;
+                        subStatusSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading sub-status options:', error);
+            }
+        }
+        
+        // Assign ticket to me
+        async function assignTicketToMe(event, ticketId) {
+             // Prevent event propagation if called from a button click
+             if (event) {
+                event.stopPropagation();
+            }
+            
+            // Confirm assignment
+            if (!confirm('Are you sure you want to assign this ticket to yourself?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!employeeData || !employeeData.empId) {
+                    throw new Error('Employee ID not found in employee data');
+                }
+                
+                const empId = employeeData.empId;
+                
+                
+                fetch(`http://103.115.194.81:8080/ticket/Employee/AssignEmpByEmp/${ticketId}/${empId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                    
+                })   .then(assignResponse => {
+                    if (!assignResponse.ok) {
+                        throw new Error('Failed to assign ticket');
+                    }
+                    return assignResponse.json(); // Get updated ticket JSON
+                })
+                .then(updatedTicket  => {
+                    const statusGmid = updatedTicket.status?.gmid;
+            if (!statusGmid) {
+                throw new Error('Status GMID not found in updated ticket');
+            }
+                    
+                    const transactionData = {
+                        commentDto: "self assigned",
+                        employeeDto: empId,
+                        statusDto: statusGmid,
+                        ticket_numberDto: ticketId
+                    };
+                    
+                    return fetch('http://103.115.194.81:8080/ticket/Employee/addTranscation', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(transactionData)
+                    });
+                })
+                .then(transactionResponse => {
+                    if (!transactionResponse.ok) {
+                        console.error('Failed to add transaction record');
+                    }
+                    
+                    alert('Ticket has been successfully assigned to you');
+                document.getElementById('loadingIndicator').style.display = 'flex';
+                    loadModuleTickets('all', employeeData.modulesMaster_id.modId);
+                    // Refresh data
+                    
+                   if (document.getElementById('ticketModal').style.display === 'block') {
+                       // If modal is open, close it and reopen with updated data
+                       closeModal();
+                       setTimeout(() => {
+                           viewTicketDetails(ticketId, 'my');
+                       }, 500);
+                   }
+                })
+             
+            } catch (error) {
+            }
+        }
+        
+        async function assignTicketToMeNew(event, ticketId) {
+            // Prevent event propagation if called from a button click
+            if (event) {
+                event.stopPropagation();
+            }
+            
+            // Confirm assignment
+            if (!confirm('Are you sure you want to assign this ticket to yourself?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!employeeData || !employeeData.empId) {
+                    throw new Error('Employee ID not found in employee data');
+                }
+                
+                const empId = employeeData.empId;
+                
+                // Show loading indicator
+                
+                // Assign ticket to employee
+                fetch(`http://103.115.194.81:8080/ticket/Employee/AssignEmpByEmp/${ticketId}/${empId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(assignResponse => {
+                    if (!assignResponse.ok) {
+                        if (assignResponse.status === 401 || assignResponse.status === 403) {
+                            checkTokenExpiration();
+                        }
+                        throw new Error('Failed to assign ticket');
+                    }
+                    
+                    // Get IN-PROGRESS status ID
+                    return fetch('http://103.115.194.81:8080/ticket/Employee/dropofStatus', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                })
+                .then(statusResponse => {
+                    if (!statusResponse.ok) {
+                        throw new Error('Failed to fetch status options');
+                    }
+                    return statusResponse.json();
+                })
+                .then(statuses => {
+                    const inProgressStatus = statuses.find(status => status.gmDescription === 'IN-PROGRESS');
+                    
+                    if (!inProgressStatus) {
+                        throw new Error('IN-PROGRESS status not found');
+                    }
+                    
+                    // Update ticket status to IN-PROGRESS
+                    return fetch(`http://103.115.194.81:8080/ticket/Employee/ChangeStatusByEmp/${ticketId}/${inProgressStatus.gmid}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                })
+                .then(updateStatusResponse => {
+                    if (!updateStatusResponse.ok) {
+                        throw new Error('Failed to update ticket status');
+                    }
+                    
+                    // Add transaction record
+                    const transactionData = {
+                        commentDto: "self assigned",
+                        employeeDto: empId,
+                        statusDto: inProgressStatus.gmid,
+                        ticket_numberDto: ticketId
+                    };
+                    
+                    return fetch('http://103.115.194.81:8080/ticket/Employee/addTranscation', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(transactionData)
+                    });
+                })
+                .then(transactionResponse => {
+                    if (!transactionResponse.ok) {
+                        console.error('Failed to add transaction record');
+                    }
+                    
+                    alert('Ticket has been successfully assigned to you and status updated to IN-PROGRESS.');
+                    
+                    // Refresh data
+                    loadAllData();
+                    
+                    // If modal is open, close it and reopen with updated data
+                    if (document.getElementById('ticketModal').style.display === 'block') {
+                        closeModal();
+                        setTimeout(() => {
+                            viewTicketDetails(ticketId, 'my');
+                        }, 500);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error assigning ticket:', error);
+                    alert('Failed to assign ticket. Please try again later.');
+                })
+                .finally(() => {
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                });
+            } catch (error) {
+                console.error('Error assigning ticket:', error);
+                alert('Failed to assign ticket. Please try again later.');
+            }
+        }
+        
+        // Update ticket status
+        async function updateTicketStatus(ticketId) {
+            const statusSelect = document.getElementById('statusUpdateSelect');
+            const statusId = statusSelect.value;
+            const commentInput = document.getElementById('statusCommentInput');
+            const comment = commentInput.value.trim();
+            
+            if (!statusId) {
+                alert('Please select a status');
+                return;
+            }
+            
+            if (!comment) {
+                alert('Please enter a comment');
+                return;
+            }
+            
+            // Check if sub-status is required
+            const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+            const statusDescription = selectedOption ? selectedOption.dataset.description : '';
+            let subId = null;
+            
+            if (statusDescription === 'ON-HOLD') {
+                const subStatusSelect = document.getElementById('subStatusSelect');
+                subId = subStatusSelect.value;
+                
+                if (!subId) {
+                    alert('Please select a sub-status');
+                    return;
+                }
+            }
+            
+            // Confirm status update
+            if (!confirm('Are you sure you want to update the ticket status?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                if (!employeeData || !employeeData.empId) {
+                    throw new Error('Employee ID not found in employee data');
+                }
+                
+                const empId = employeeData.empId;
+                
+                // Show loading indicator
+                document.getElementById('loadingIndicator').style.display = 'flex';
+                
+                // Update ticket status
+                const response = await fetch(`http://103.115.194.81:8080/ticket/Employee/ChangeStatusByEmp/${ticketId}/${statusId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to update ticket status');
+                }
+                
+                // Add transaction record
+                const transactionData = {
+                    commentDto: comment,
+                    employeeDto: empId,
+                    statusDto: statusId,
+                    ticket_numberDto: ticketId
+                };
+                
+                // Add sub-status if applicable
+                if (subId) {
+                    transactionData.sub_statusDto = subId;
+                }
+                
+                const transactionResponse = await fetch('http://103.115.194.81:8080/ticket/Employee/addTranscation', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+                
+                if (!transactionResponse.ok) {
+                    console.error('Failed to add transaction record');
+                }
+                
+                alert('Ticket status has been successfully updated.');
+                
+                // Refresh data
+                loadInitialData();
+                
+                // If modal is open, close it and reopen with updated data
+                if (document.getElementById('ticketModal').style.display === 'block') {
+                    closeModal();
+                    setTimeout(() => {
+                        viewTicketDetails(ticketId, 'my');
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error updating ticket status:', error);
+                alert('Failed to update ticket status. Please try again later.');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+        
+        // Function to download attachment with authentication
+        async function downloadAttachment(filePath, fileName) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+                
+                // Show loading indicator
+                document.getElementById('loadingIndicator').style.display = 'flex';
+                
+                const response = await fetch(filePath, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to download attachment');
+                }
+                
+                // Get the blob from the response
+                const blob = await response.blob();
+                
+                // Create a temporary URL for the blob
+                const url = window.URL.createObjectURL(blob);
+                
+                // Create a temporary link element
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName || 'attachment';
+                document.body.appendChild(a);
+                
+                // Trigger the download
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error downloading attachment:', error);
+                alert('Failed to download attachment. Please try again.');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        // Function to view attachment with authentication
+        async function viewAttachment(filePath) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+            
+                // Show loading indicator
+                document.getElementById('loadingIndicator').style.display = 'flex';
+            
+                const response = await fetch(filePath, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        checkTokenExpiration();
+                    }
+                    throw new Error('Failed to view attachment');
+                }
+            
+                // Get the blob (binary content)
+                const blob = await response.blob();
+            
+                // Create a temporary URL for the blob
+                const blobUrl = window.URL.createObjectURL(blob);
+            
+                // Open the blob in a new tab
+                window.open(blobUrl, '_blank');
+            
+                // Optionally revoke the blob URL later (after some delay)
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(blobUrl);
+                }, 1000 * 60); // 1 minute
+            } catch (error) {
+                console.error('Error viewing attachment:', error);
+                alert('Failed to view attachment. Please try again.');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+        
+        // Set active filter button and show appropriate search container
+        function setActiveFilter(button, filterType) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            // Hide all search containers
+            document.querySelectorAll('.search-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // Show appropriate search container based on filter type
+            if (filterType !== 'all') {
+                document.getElementById(`${filterType}Search`).style.display = 'flex';
+            }
+            
+            // If "View All" is selected, refresh all tickets
+            if (filterType === 'all') {
+                loadInitialData();
+            }
+        }
+        
+        // Search by ticket code
+        function searchByTicketCode() {
+            const ticketCode = document.getElementById('ticketCodeInput').value.trim();
+            if (!ticketCode) {
+                alert('Please enter a ticket code');
+                return;
+            }
+            
+            let ticketsToFilter = [];
+            
+            // Determine which tickets to filter based on current bucket
+            if (currentBucket === 'businessEntity') {
+                ticketsToFilter = allBusinessEntityTickets;
+            } else if (currentBucket === 'module') {
+                ticketsToFilter = allModuleTickets;
+            } else if (currentBucket === 'myTickets') {
+                ticketsToFilter = myTickets;
+            }
+            
+            const filteredTickets = ticketsToFilter.filter(ticket => 
+                ticket.ticketcode && ticket.ticketcode.toLowerCase().includes(ticketCode.toLowerCase())
+            );
+            
+            // Display filtered tickets in the appropriate container
+            if (currentBucket === 'businessEntity') {
+                displayBusinessEntityTickets(filteredTickets);
+            } else if (currentBucket === 'module') {
+                displayModuleTickets(filteredTickets);
+            } else if (currentBucket === 'myTickets') {
+                displayMyTickets(filteredTickets);
+            }
+        }
+        
+        // Search by client
+        function searchByClient() {
+            const clientId = document.getElementById('clientSelect').value;
+            if (!clientId) {
+                alert('Please select a client');
+                return;
+            }
+            
+            let ticketsToFilter = [];
+            
+            // Determine which tickets to filter based on current bucket
+            if (currentBucket === 'businessEntity') {
+                ticketsToFilter = allBusinessEntityTickets;
+            } else if (currentBucket === 'module') {
+                ticketsToFilter = allModuleTickets;
+            } else if (currentBucket === 'myTickets') {
+                ticketsToFilter = myTickets;
+            }
+            
+            const filteredTickets = ticketsToFilter.filter(ticket => 
+                ticket.clientid && ticket.clientid.clientId == clientId
+            );
+            
+            // Display filtered tickets in the appropriate container
+            if (currentBucket === 'businessEntity') {
+                displayBusinessEntityTickets(filteredTickets);
+            } else if (currentBucket === 'module') {
+                displayModuleTickets(filteredTickets);
+            } else if (currentBucket === 'myTickets') {
+                displayMyTickets(filteredTickets);
+            }
+        }
+        
+        // Search by module
+        function searchByModule() {
+            const moduleId = document.getElementById('moduleSelect').value;
+            if (!moduleId) {
+                alert('Please select a module');
+                return;
+            }
+            
+            let ticketsToFilter = [];
+            
+            // Determine which tickets to filter based on current bucket
+            if (currentBucket === 'businessEntity') {
+                ticketsToFilter = allBusinessEntityTickets;
+            } else if (currentBucket === 'module') {
+                ticketsToFilter = allModuleTickets;
+            } else if (currentBucket === 'myTickets') {
+                ticketsToFilter = myTickets;
+            }
+            
+            const filteredTickets = ticketsToFilter.filter(ticket => 
+                ticket.modulesid && ticket.modulesid.modId == moduleId
+            );
+            
+            // Display filtered tickets in the appropriate container
+            if (currentBucket === 'businessEntity') {
+                displayBusinessEntityTickets(filteredTickets);
+            } else if (currentBucket === 'module') {
+                displayModuleTickets(filteredTickets);
+            } else if (currentBucket === 'myTickets') {
+                displayMyTickets(filteredTickets);
+            }
+        }
+        
+        // Apply advanced filters
+        function applyAdvancedFilters() {
+            const statusId = document.getElementById('statusFilter').value;
+            const priorityId = document.getElementById('priorityFilter').value;
+            const levelId = document.getElementById('levelFilter').value;
+            const typeId = document.getElementById('typeFilter').value;
+            const assignmentFilter = document.getElementById('assignmentFilter').value;
+            
+            let ticketsToFilter = [];
+            
+            // Determine which tickets to filter based on current bucket
+            if (currentBucket === 'businessEntity') {
+                ticketsToFilter = [...allBusinessEntityTickets];
+            } else if (currentBucket === 'module') {
+                ticketsToFilter = [...allModuleTickets];
+            } else if (currentBucket === 'myTickets') {
+                ticketsToFilter = [...myTickets];
+            }
+            
+            let filteredTickets = ticketsToFilter;
+            
+            // Apply status filter
+            if (statusId) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.status && ticket.status.gmid == statusId
+                );
+            }
+            
+            // Apply priority filter
+            if (priorityId) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.priority && ticket.priority.gmid == priorityId
+                );
+            }
+            
+            // Apply level filter
+            if (levelId) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.ticketlevel && ticket.ticketlevel.gmid == levelId
+                );
+            }
+            
+            // Apply type filter
+            if (typeId) {
+                filteredTickets = filteredTickets.filter(ticket => 
+                    ticket.tickettype && ticket.tickettype.gmid == typeId
+                );
+            }
+            
+            // Apply assignment filter
+            if (assignmentFilter === 'assigned') {
+                filteredTickets = filteredTickets.filter(ticket => ticket.employeeId);
+            } else if (assignmentFilter === 'unassigned') {
+                filteredTickets = filteredTickets.filter(ticket => !ticket.employeeId);
+            }
+            
+            // Display filtered tickets in the appropriate container
+            if (currentBucket === 'businessEntity') {
+                displayBusinessEntityTickets(filteredTickets);
+            } else if (currentBucket === 'module') {
+                displayModuleTickets(filteredTickets);
+            } else if (currentBucket === 'myTickets') {
+                displayMyTickets(filteredTickets);
+            }
+        }
+        
+        // Reset advanced filters
+        function resetAdvancedFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('assignmentFilter').value = '';
+            
+            // Reload tickets for the current bucket
+            if (currentBucket === 'businessEntity') {
+                displayBusinessEntityTickets(allBusinessEntityTickets);
+            } else if (currentBucket === 'module') {
+                displayModuleTickets(allModuleTickets);
+            } else if (currentBucket === 'myTickets') {
+                displayMyTickets(myTickets);
+            }
+        }
+        
+        // Close the modal
+        function closeModal() {
+            document.getElementById('ticketModal').style.display = 'none';
+        }
+        
+        // Format date time with 12-hour clock
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return 'N/A';
+        
+            try {
+                // Convert "15-04-2025 T 17:27:57" to "2025-04-15T17:27:57"
+                const cleanedStr = dateTimeStr.replace(/\s*T\s*/, ' '); // Remove the "T" with optional spaces
+                const [datePart, timePart] = cleanedStr.split(' ');
+                const [day, month, year] = datePart.split('-');
+        
+                if (!day || !month || !year || !timePart) return 'N/A';
+        
+                const isoString = `${year}-${month}-${day}T${timePart}`;
+                const date = new Date(isoString);
+        
+                if (isNaN(date.getTime())) {
+                    return 'N/A';
+                }
+        
+                // Extract parts manually
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                const ampm = hours >= 12 ? 'AM' : 'PM';
+                const hour12 = hours % 12 || 12; // Convert to 12-hour format
+        
+                // Pad minutes and hours
+                const paddedHour = hour12.toString().padStart(2, '0');
+                const paddedMinutes = minutes.toString().padStart(2, '0');
+        
+                return `${day}/${month}/${year}, ${paddedHour}:${paddedMinutes} ${ampm}`;
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return 'N/A';
+            }
+        }
+        
+        // Format date only
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            
+            try {
+                // If it's already in a readable format, return as is
+                if (dateStr.includes('T')) {
+                    return dateStr.split('T')[0].trim();
+                }
+                
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+        
+        // Toggle collapsible section
+        function toggleSection(headerElement) {
+            const section = headerElement.parentElement;
+            section.classList.toggle("active");
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('ticketModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

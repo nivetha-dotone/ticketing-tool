@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Master</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        /* Header Styles */
+        .header-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #003366;
+            color: white;
+            padding: 24px 20px;
+            position: fixed;
+            top: 0;
+            width: 99%;
+            z-index: 100;
+        }
+
+        .header-left img {
+            height: 50px;
+            padding-left: 62%;
+        }
+
+        .header-center {
+            flex: 1;
+            padding-left: 57px;
+            text-align: center;
+        }
+
+        .header-center h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 20px;
+        }
+
+        .profile-img {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #0055aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .profile-details {
+            text-align: right;
+        }
+
+        .profile-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .admin-id {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 213px;
+            height: calc(100% - 100px);
+            background-color: #333;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+        .sidebar.hidden {
+            transform: translateX(-250px);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .sidebar ul li a:hover, .sidebar ul li.active a {
+            background-color: #555;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-right: 1%;
+            margin-left: 223px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-top: 5.5%;
+        }
+        .main-content.collapsed {
+            margin-left: 0;
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex: 1;
+        }
+
+        .tab.active {
+            background-color: #003366;
+            color: white;
+        }
+
+        /* Content Styles */
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #003366;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #002244;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Entry List Styles */
+        .entry-list {
+            margin-top: 20px;
+        }
+
+        .entry-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 90;
+        }
+        .toggle-btn {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.success {
+            background-color: #28a745;
+        }
+
+        .toast.error {
+            background-color: #dc3545;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f2fff5; /* Hover effect */
+        }
+
+
+        /* Search Box Styles */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+
+        /* Session expiry modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background-color: #003366;
+            color: white;
+        }
+
+        .secondary-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header-main">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="header-left">
+            <img src="https://www.dot1.in/img/dot1.png" alt="Logo">
+        </div>
+        
+        <div class="header-center">
+            <h1>TRACK</h1>
+        </div>
+        <div class="header-right" id="profileSection">
+            <!-- Profile content will be dynamically inserted here -->
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <ul>
+            <li ><a href="adminDashboard">Dashboard</a></li>
+            <li class="active"><a href="adminmaster">Masters</a></li>
+            <li><a href="adminticketCr">Create Ticket</a></li>
+            <li><a href="admintAlltickets">Tickets</a></li>
+            <li><a href="admintReports">Reports</a></li>
+            <li><a href="Logout" onclick="logout()">Log Out</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <h2>Business Entity</h2>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('view')">View Master</button>
+            <button class="tab" onclick="showTab('add')">Add Master</button>
+            <button class="tab" onclick="showTab('update')">Update Master</button>
+            <!-- <button class="tab" onclick="showTab('delete')">Delete by ID</button> -->
+        </div>
+
+        <div id="view" class="tab-content active">
+            <button class="btn" onclick="fetchAllEntries()">View All Entries</button>
+            <button class="btn" onclick="showTab('find')">Find by ID</button>
+
+            <div class="table-container">
+                <table id="viewEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Entity Code</th>
+                            <th>Entity Name</th>
+                            <th>Active</th>
+                            <!-- <th>Insert Time</th> -->
+                            <!-- <th>Update Time</th> -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="find" class="tab-content">
+            <div class="search-box">
+                <input type="number" id="searchId" placeholder="Enter ID (Number)">
+                <button class="btn" onclick="findById()">Find</button>
+            </div>
+            <div class="table-container">
+                <table id="findEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Entity Code</th>
+                            <th>Entity Name</th>
+                            <th>Active</th>
+                            <!-- <th>Insert Time</th> -->
+                            <!-- <th>Update Time</th> -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="add" class="tab-content">
+            <form id="addForm" onsubmit="addEntry(event)">
+                <div class="form-group">
+                    <input type="text" id="cmpcode" placeholder="Business Code" required oninput="validateCompanyCode(this)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="cmpnm" placeholder="Business Name" required oninput="formatTextCompany()">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isactive" checked>
+                        Is Active
+                    </label>
+                </div>
+                <button type="submit" class="btn">Add Entry</button>
+            </form>
+        </div>
+
+        <div id="update" class="tab-content">
+            <div class="search-box">
+                <input type="number" id="updateSearchId" placeholder="Enter ID to update">
+                <button class="btn" onclick="findForUpdate()">Find</button>
+            </div>
+            <form id="updateForm" onsubmit="updateEntry(event)" style="display: none;">
+                <div class="form-group">
+                    <input type="text" id="updateCmpcode" placeholder="Business Code" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="updateCmpnm" placeholder="Business Name" required oninput="formatTextUpCompany()">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="updateIsactive">
+                        Is Active
+                    </label>
+                </div>
+                <button type="submit" class="btn">Update Entry</button>
+            </form>
+        </div>
+
+        <div id="delete" class="tab-content">
+            <div class="search-box">
+                <input type="number" id="deleteSearchId" placeholder="Enter ID to delete">
+                <button class="btn btn-danger" onclick="deleteById()">Delete by ID</button>
+            </div>
+            <button class="btn" onclick="fetchAllEntries('deleteEntryTable')">View All Entries</button>
+            <div class="table-container">
+                <table id="deleteEntryTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Entity Code</th>
+                            <th>Entity Name</th>
+                            <th>Active</th>
+                            <!-- <th>Insert Time</th> -->
+                            <!-- <th>Update Time</th> -->
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <div id="sessionModal" class="modal">
+        <div class="modal-content">
+            <h3>Session Expired</h3>
+            <p>Your session has expired. Please login again to continue.</p>
+            <div class="modal-buttons">
+                <button class="modal-button primary-button" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <div id="toast" class="toast"></div>
+
+    <footer>
+        &copy; 2025 DOT 1. All Rights Reserved.
+    </footer>
+
+    <script>   
+        
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadUserProfile();
+        fetchAllEntries();
+
+            
+            // Check token expiration immediately
+            checkTokenExpiration();
+            
+            // Set up token expiration check every 30 seconds
+            setInterval(checkTokenExpiration, 30000);
+        });
+        
+        // Function to check if token is expired
+        function isTokenExpired() {
+            const tokenExpiry = localStorage.getItem('tokenExpiry');
+            
+            if (!tokenExpiry) {
+                return true; // If there's no expiry time stored, assume expired
+            }
+        
+            const expiryTime = Number(tokenExpiry); // Convert to number safely
+            
+            if (isNaN(expiryTime)) {
+                console.warn("Invalid token expiry value in localStorage.");
+                return true; // Treat invalid values as expired
+            }
+        
+            console.log("Stored Token Expiry:", expiryTime, "Current Time:", Date.now());
+        
+            return Date.now() > expiryTime;
+        }
+        
+        // Function to check token expiration
+    function checkTokenExpiration() {
+        if (isTokenExpired()) {
+            showSessionExpiredModal();
+        }
+    }
+    
+        
+    function showSessionExpiredModal() {
+        const modal = document.getElementById('sessionModal');
+        modal.style.display = 'block';
+        
+        // Prevent closing the modal by clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                // Do nothing - force user to click the login button
+            }
+        };
+    }
+        // Function to redirect to login page
+        function redirectToLogin() {
+            logout();
+            window.location.href = 'Logout';
+        }
+        
+        // Function to check authentication
+        function checkAuthentication() {
+            const token = localStorage.getItem('authToken');
+            if (!token || isTokenExpired()) {
+                redirectToLogin();
+            }
+        }
+        // Function to load user profile
+        function loadUserProfile() {
+            try {
+                const employeeDataStr = localStorage.getItem('employeeData');
+                if (!employeeDataStr) {
+                    return;
+                }
+                
+                const employeeData = JSON.parse(employeeDataStr);
+                const profileSection = document.getElementById('profileSection');
+                
+                // Get first letter of employee name for avatar
+                const firstLetter = employeeData.empName ? employeeData.empName.charAt(0).toUpperCase() : 'U';
+                
+                profileSection.innerHTML = `
+                    <div class="profile-img">${firstLetter}</div>
+                    <div class="profile-details">
+                        <p class="profile-name">${employeeData.empName || 'User'}</p>
+                        <p class="admin-id">Admin ID: ${employeeData.empCode || 'N/A'}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+            }
+        }
+        // Function to handle logout
+        function logout() {
+        // Clear all authentication data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('tokenExpiry');
+        localStorage.removeItem('userID');
+        localStorage.removeItem('employeeData');
+        
+        // Redirect to login page
+        window.location.href = 'Logout';
+    }
+     // Function to save authentication token with expiry
+     function saveAuthToken(token, expiresIn) {
+        const expiryTime = expiresIn * 10000000;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('tokenExpiry', expiryTime);
+        console.log("Token Expiry Set:", expiryTime);
+    }
+    // Helper function to make authenticated API requests
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+        
+        // Set default options
+        const defaultOptions = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        // Merge options
+        const mergedOptions = {
+            ...defaultOptions,
+            ...options,
+            headers: {
+                ...defaultOptions.headers,
+                ...(options.headers || {})
+            }
+        };
+        
+        try {
+            const response = await fetch(url, mergedOptions);
+            
+            if (response.status === 401 || response.status === 403) {
+                // Token might be expired or invalid
+                checkTokenExpiration();
+                throw new Error('Authentication failed');
+            }
+            
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('API request error:', error);
+            throw error;
+        }
+    }
+        
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main-content');
+            sidebar.classList.toggle('hidden');
+            main.classList.toggle('collapsed');
+        }
+
+        // Show Toast Notification
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Render Entry
+        function renderEntry(entry, tableId, includeDelete = false) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.cmpid}</td>
+                <td>${entry.cmpcode}</td>
+                <td>${entry.cmpnm}</td>
+                <td>${entry.isactive ? 'Yes' : 'No'}</td>
+                <!-- <td>${entry.insdate}</td> -->
+                ${includeDelete ? `<td><button class="btn btn-danger" onclick="deleteEntry(${entry.cmpid})">Delete</button></td>` : ''}
+            `;
+            tbody.appendChild(row);
+        }
+// Function to fetch all entries with authentication
+async function fetchAllEntries(tableId = 'viewEntryTable') {
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+
+        const response = await fetch('http://103.115.194.81:8080/ticket/Admin/Company/getAllMaster', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 200) {
+            const data = await response.json();
+            
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            tbody.innerHTML = '';  // Clear the table body
+            
+            // Render each entry into the table
+            data.forEach(entry => {
+                renderEntry(entry, tableId, tableId === 'deleteEntryTable');
+            });
+
+            showToast('Entries fetched successfully', 'success');
+        } else {
+            // Handle authentication errors or other status codes
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                // Token might be expired or invalid
+                checkTokenExpiration();
+                showSessionExpiredModal();
+            }
+            throw new Error(`Failed to fetch entries: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("Error fetching entries:", error);
+        showToast('Failed to fetch entries', 'error');
+
+        // Check if the error is related to authentication
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showSessionExpiredModal();
+        }
+    }
+}
+        
+        
+        let shiftPressed = false;
+        let capsLockOn = false;
+        
+        // Detect Shift & Caps Lock key states
+        document.addEventListener("keydown", (event) => {
+            shiftPressed = event.shiftKey;
+            capsLockOn = event.getModifierState("CapsLock");
+        });
+        
+        document.addEventListener("keyup", () => {
+            shiftPressed = false;
+        });
+        
+        // Validate Company Code - Only A-Z, 0-9, -, _
+        function validateCompanyCode(input) {
+            input.value = input.value.toUpperCase().replace(/[^A-Z0-9-_]/g, '');
+        }
+        
+        // Validate Company Name - Keeps Shifted Words Uppercase & Retains Spaces
+        function formatTextCompany() {
+            let inputField = document.getElementById("cmpnm");
+            let text = inputField.value;
+
+            // Remove invalid characters (allow only a-z, A-Z, 0-9, -, _ and spaces)
+            text = text.replace(/[^a-zA-Z0-9\-_ ]/g, "");
+
+            let words = text.split(/(\s|-|_)/); // Keep spaces, dashes, and underscores
+
+            let formattedText = words.map(word => {
+                if (/\w/.test(word)) { // Ensure it contains at least one letter/number
+                    let firstChar = word.charAt(0).toUpperCase();
+                    let rest = word.slice(1);
+                    return firstChar + rest;
+                }
+                return word; // Preserve spaces, dashes, and underscores
+            }).join("");
+
+            inputField.value = formattedText;
+        }
+        
+        function formatTextUpCompany() {
+            let inputField = document.getElementById("updateCmpnm");
+            let text = inputField.value;
+
+            // Remove invalid characters (allow only a-z, A-Z, 0-9, -, _ and spaces)
+            text = text.replace(/[^a-zA-Z0-9\-_ ]/g, "");
+
+            let words = text.split(/(\s|-|_)/); // Keep spaces, dashes, and underscores
+
+            let formattedText = words.map(word => {
+                if (/\w/.test(word)) { // Ensure it contains at least one letter/number
+                    let firstChar = word.charAt(0).toUpperCase();
+                    let rest = word.slice(1);
+                    return firstChar + rest;
+                }
+                return word; // Preserve spaces, dashes, and underscores
+            }).join("");
+
+            inputField.value = formattedText;
+        }
+        
+        // Attach event listeners
+        document.getElementById("cmpcode").addEventListener("input", function () {
+            validateCompanyCode(this);
+        });
+        
+        document.getElementById("cmpnm").addEventListener("input", function () {
+            formatTextCompany();
+        });
+        document.getElementById("updateCmpnm").addEventListener("input", function () {
+            formatTextUpCompany();
+        });
+
+        
+  // Function to find entry by ID with authentication
+  async function findById() {
+    const searchId = document.getElementById('searchId').value;
+    
+    if (!searchId) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/ticket/Admin/Company/findbyid/${searchId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        // Check if the response is successful
+        if (response.status === 200) {
+            const data = await response.json();
+            
+            const tbody = document.querySelector('#findEntryTable tbody');
+            tbody.innerHTML = ''; // Clear the table body
+            
+            // Render the found entry
+            renderEntry(data, 'findEntryTable');
+            
+            showToast('Entry found', 'success');
+        } else {
+            // Handle authentication errors or other status codes
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                checkTokenExpiration();
+                showSessionExpiredModal();
+            }
+            throw new Error('Entry not found');
+        }
+    } catch (error) {
+        console.error("Error finding entry:", error);
+        showToast('Entry not found', 'error');
+
+        // Handle authentication error
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showSessionExpiredModal();
+        }
+    }
+}
+
+
+// Function to find entry for update with authentication
+// Function to find entry for update with authentication
+async function findForUpdate() {
+    const searchId = document.getElementById('updateSearchId').value;
+    if (!searchId) return;
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/ticket/Admin/Company/findbyid/${searchId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                checkTokenExpiration();
+            }
+            throw new Error('Entry not found');
+        }
+
+        const data = await response.json();
+
+        // Clear any previous form values
+        document.getElementById('updateCmpcode').value = '';
+        document.getElementById('updateCmpnm').value = '';
+        document.getElementById('updateIsactive').checked = false;
+
+        // Populate the form with the fetched data
+        document.getElementById('updateCmpcode').value = data.cmpcode;
+        document.getElementById('updateCmpnm').value = data.cmpnm;
+        document.getElementById('updateIsactive').checked = data.isactive;
+        
+        // Show the form once data is populated
+        document.getElementById('updateForm').style.display = 'block';
+
+        showToast('Entry found', 'success');
+    } catch (error) {
+        console.error("Error finding entry for update:", error);
+        showToast('Entry not found', 'error');
+
+        // Hide the form if there's an error
+        document.getElementById('updateForm').style.display = 'none';
+    }
+}
+
+
+        // Add New Entry
+// Function to add a new entry with authentication
+async function addEntry(event) {
+    event.preventDefault();
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    // Retrieve input values
+    const cmpcode = document.getElementById('cmpcode').value.trim();
+    const cmpnm = document.getElementById('cmpnm').value.trim();
+    const isactive = document.getElementById('isactive').checked;
+
+    // Basic validation
+    if (!cmpcode || !cmpnm) {
+        showToast('Company Code and Name are required', 'error');
+        return;
+    }
+
+    const newEntry = { cmpcode, cmpnm, isactive };
+
+    try {
+        const response = await fetch('http://localhost:8080/ticket/Admin/Company/addMaster', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Pass token for authentication
+            },
+            body: JSON.stringify(newEntry),
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403 || response.status === 500) {
+                checkTokenExpiration();
+                showToast('Session expired. Please log in again.', 'error');
+            } else if (response.status === 400) {
+                showToast(responseData.message || 'Invalid input data', 'error');
+            } else if (response.status === 409) {
+                showToast('Entry with this code already exists', 'error');
+            } else {
+                showToast('Failed to add entry', 'error');
+            }
+            throw new Error(`Failed to add entry: ${response.status}`);
+        }
+
+        // Success handling
+        showToast('Entry added successfully', 'success');
+        document.getElementById('addForm').reset();
+        fetchAllEntries();
+    } catch (error) {
+        console.error("Error adding entry:", error);
+        showToast('Failed to add entry. Try again later.', 'error');
+    }
+}
+
+
+// Function to update an entry with authentication
+async function updateEntry(event) {
+    event.preventDefault();
+    
+    const companyId = document.getElementById('updateSearchId').value.trim();
+    if (!companyId) {
+        showToast('Company ID is required', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        showToast('Authentication required', 'error');
+        throw new Error('No authentication token found');
+    }
+
+    const updatedEntry = {
+        cmpcode: document.getElementById('updateCmpcode').value.trim(),
+        cmpnm: document.getElementById('updateCmpnm').value.trim(),
+        isactive: document.getElementById('updateIsactive').checked
+    };
+
+    // Validate input fields
+    if (!updatedEntry.cmpcode || !updatedEntry.cmpnm) {
+        showToast('Company Code and Name cannot be empty', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/ticket/Admin/Company/updateComp/${companyId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updatedEntry),
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                checkTokenExpiration();
+                showToast('Session expired. Please log in again.', 'error');
+            } else if (response.status === 400) {
+                showToast(responseData.message || 'Invalid data provided', 'error');
+            } else if (response.status === 404) {
+                showToast('Company ID not found', 'error');
+            } else if (response.status === 409) {
+                showToast('Company with this code already exists', 'error');
+            } else {
+                showToast('Failed to update entry', 'error');
+            }
+            throw new Error(`Failed to update entry: ${response.status}`);
+        }
+
+        // Success handling
+        showToast('Entry updated successfully', 'success');
+        document.getElementById('updateForm').reset();
+        document.getElementById('updateForm').style.display = 'none';
+        document.getElementById('updateSearchId').value = '';
+        fetchAllEntries();
+    } catch (error) {
+        console.error("Error updating entry:", error);
+        showToast('Failed to update entry. Try again later.', 'error');
+    }
+}
+
+
+        // Initial load
+        fetchAllEntries();
+    </script>
+</body>
+</html>
+
